@@ -74,6 +74,7 @@ public class MainMenuActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         View headerView = navigationView.getHeaderView(0);
 
+        // set custom font
         appNameSidebar = headerView.findViewById(R.id.appNameSidebar);
         appNameSidebar.setTypeface(serifFont);
 
@@ -117,17 +118,23 @@ public class MainMenuActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_timeline) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_vehicle_information) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_report) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_services_nearby) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_emergency_services) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_marketplace) {
+
+        } else if (id == R.id.nav_news) {
+
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_about) {
 
         }
 

@@ -3,36 +3,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/menu_top"
+        android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_timeline"
+            android:icon="@drawable/ic_timeline_black_24dp"
+            android:title="@string/timeline" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_vehicle_information"
+            android:icon="@drawable/ic_car"
+            android:title="@string/vehicle_information" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_report"
+            android:icon="@drawable/ic_assignment_black_24dp"
+            android:title="@string/report" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_emergency_services"
+            android:icon="@drawable/ic_warning_black_24dp"
+            android:title="@string/emergency_services" />
+        <item
+            android:id="@+id/nav_services_nearby"
+            android:icon="@drawable/ic_gas_station"
+            android:title="@string/services_nearby" />
+        <item
+            android:id="@+id/nav_marketplace"
+            android:icon="@drawable/ic_shopping_cart_black_24dp"
+            android:title="@string/marketplace" />
+        <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/ic_newspaper"
+            android:title="@string/news" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
-
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="@string/settings" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_info_black_24dp"
+            android:title="@string/about" />
+    </group>
 </menu>

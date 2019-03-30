@@ -25,11 +25,14 @@
         </activity>
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/activity_register"></activity>
+            android:label="@string/activity_register" />
         <activity
             android:name=".MainMenuActivity"
             android:label="@string/title_activity_main_menu"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>
