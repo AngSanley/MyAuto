@@ -106,8 +106,14 @@ public class MainMenuActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             MarketplaceFragment test = (MarketplaceFragment) getSupportFragmentManager().findFragmentByTag("marketplace");
-            if (test != null && test.isVisible()) {
-                test.onBackKeyPressed(KeyEvent.KEYCODE_BACK);
+            NewsFragment test2 = (NewsFragment) getSupportFragmentManager().findFragmentByTag("news");
+
+            if ((test != null && test.isVisible()) || (test2 != null && test2.isVisible())) {
+                if (test != null && test.isVisible()) {
+                    test.onBackKeyPressed(KeyEvent.KEYCODE_BACK);
+                } else {
+                    test2.onBackKeyPressed(KeyEvent.KEYCODE_BACK);
+                }
             } else {
                 super.onBackPressed();
             }
@@ -169,6 +175,8 @@ public class MainMenuActivity extends AppCompatActivity
             tag = "marketplace";
 
         } else if (id == R.id.nav_news) {
+            fragment = new NewsFragment();
+            tag = "news";
 
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
