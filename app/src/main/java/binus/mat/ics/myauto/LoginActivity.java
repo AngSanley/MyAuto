@@ -33,11 +33,25 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -63,6 +77,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private UserLoginTask mAuthTask = null;
 
+    final String loginUrl = "http://wendrian.duckdns.org/stanley/myauto/api/login.php";
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -70,6 +86,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private TextView mNoAccount;
     private TextView mRegisterView;
+
+    // OkHttp
+    public static final MediaType JSON = MediaType.get("application/json");
+
+    OkHttpClient client = new OkHttpClient();
+
+    String postJson(String url, String json) throws IOException {
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        }
+    }
+
+    private String hash = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -341,22 +375,52 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
+//            try {
+//                // Simulate network access.
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                return false;
+//            }
+
+//            for (String credential : DUMMY_CREDENTIALS) {
+//                String[] pieces = credential.split(":");
+//                if (pieces[0].equals(mEmail)) {
+//                    // Account exists, return true if the password matches.
+//                    return pieces[1].equals(mPassword);
+//                }
+//            }
+//
+//            // TODO: register the new account here.
+            Map<String, String> postParam = new HashMap<>();
+            postParam.put("user_email", mEmail);
+            postParam.put("user_pass", mPassword);
+
+            // Convert Map to JSONObject
+            JSONObject jObj = new JSONObject(postParam);
+
+            //Log.d("aaaaa", jObj.toString());
+
+            String response = null;
+
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                response = postJson(loginUrl, jObj.toString());
+                //Log.d("aaaaa", response);
+            } catch (IOException e) {
+                Log.e(getApplicationContext().toString(), "I got an error", e);
+            }
+
+            Gson gson = new Gson();
+            Map<String,Object> map = new HashMap();
+            map = (Map<String,Object>) gson.fromJson(response, map.getClass());
+
+            Log.d("aaaaa", map.get("result").toString());
+            if (map.get("result").toString().equals("0.0")) {
                 return false;
+            } else if (map.get("result").toString().equals("1.0")) {
+                hash = map.get("hash").toString();
+                return true;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
             return false;
         }
 
@@ -366,7 +430,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                getSharedPreferences("LoginActivity", Context.MODE_PRIVATE).edit().putBoolean("logged_in", true).apply();
+                SharedPreferences.Editor sp = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE).edit();
+
+                sp.putBoolean("logged_in", true);
+                sp.putString("hash", hash);
+                sp.putString("user_email", mEmail);
+                sp.apply();
+
                 startActivity(new Intent(LoginActivity.this, MainMenuActivity.class));
                 finish();
             } else {

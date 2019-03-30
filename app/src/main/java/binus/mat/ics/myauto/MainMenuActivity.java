@@ -97,6 +97,14 @@ public class MainMenuActivity extends AppCompatActivity
             ft.commit();
         }
 
+        // set padding
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+        appNameSidebar.setPadding(0,statusBarHeight+10,0,0);
+
     }
 
     @Override
