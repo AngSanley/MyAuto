@@ -366,7 +366,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                getSharedPreferences("LoginActivity", Context.MODE_PRIVATE).edit().putBoolean("logged_in", true).commit();
+                getSharedPreferences("LoginActivity", Context.MODE_PRIVATE).edit().putBoolean("logged_in", true).apply();
                 startActivity(new Intent(LoginActivity.this, MainMenuActivity.class));
                 finish();
             } else {

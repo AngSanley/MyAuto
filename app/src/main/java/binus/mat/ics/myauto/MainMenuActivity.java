@@ -1,5 +1,8 @@
 package binus.mat.ics.myauto;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -105,7 +108,13 @@ public class MainMenuActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
+            SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+            mSharedPref.edit().putBoolean("logged_in", false).commit();
+
+            startActivity(new Intent(MainMenuActivity.this, LoginActivity.class));
+
+            finish();
             return true;
         }
 
@@ -133,6 +142,7 @@ public class MainMenuActivity extends AppCompatActivity
         } else if (id == R.id.nav_news) {
 
         } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
 
         } else if (id == R.id.nav_about) {
 
