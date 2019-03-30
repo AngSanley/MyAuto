@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.sql.Time;
 import java.util.Locale;
 
 public class MainMenuActivity extends AppCompatActivity
@@ -103,7 +105,12 @@ public class MainMenuActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            MarketplaceFragment test = (MarketplaceFragment) getSupportFragmentManager().findFragmentByTag("marketplace");
+            if (test != null && test.isVisible()) {
+                test.onBackKeyPressed(KeyEvent.KEYCODE_BACK);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -144,6 +151,7 @@ public class MainMenuActivity extends AppCompatActivity
         Fragment fragment = null;
 
         int id = item.getItemId();
+        String tag = null;
 
         if (id == R.id.nav_timeline) {
             fragment = new TimelineFragment();
@@ -157,6 +165,8 @@ public class MainMenuActivity extends AppCompatActivity
         } else if (id == R.id.nav_emergency_services) {
 
         } else if (id == R.id.nav_marketplace) {
+            fragment = new MarketplaceFragment();
+            tag = "marketplace";
 
         } else if (id == R.id.nav_news) {
 
@@ -170,12 +180,34 @@ public class MainMenuActivity extends AppCompatActivity
         //replacing the fragment
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
+            ft.replace(R.id.content_frame, fragment, tag);
             ft.commit();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public void onTitleChanged (CharSequence title, int color) {
+        toolbarTitle.setText(this.getTitle() + " ▾");
+    }
+
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        Toast.makeText(MainMenuActivity.this, "jajaja", Toast.LENGTH_LONG).show();
+//        getSupportActionBar().setTitle("asasas");
+//        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//
+//            MarketplaceFragment test = (MarketplaceFragment) getSupportFragmentManager().findFragmentByTag("marketplace");
+//            if (test != null && test.isVisible()) {
+//                test.onBackKeyPressed(KeyEvent.ACTION_DOWN);
+//            } else {
+//                //finish();
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
 }
