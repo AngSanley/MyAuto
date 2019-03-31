@@ -1,8 +1,10 @@
 package binus.mat.ics.myauto;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.webkit.WebViewClient;
 public class NewsFragment extends Fragment {
 
     private WebView myWebView;
+    private SwipeRefreshLayout mySwipeRefreshLayout;
 
     @Nullable
     @Override
@@ -31,9 +34,25 @@ public class NewsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         myWebView = view.findViewById(R.id.webviewMarketplace);
+        mySwipeRefreshLayout = view.findViewById(R.id.swipeContainer);
+
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        myWebView.setWebViewClient(new WebViewClient());
+
+        myWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                mySwipeRefreshLayout.setRefreshing(true);
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                mySwipeRefreshLayout.setRefreshing(false);
+                super.onPageFinished(view, url);
+            }
+        });
+
         myWebView.loadUrl("https://autonetmagz.com/");
     }
 
