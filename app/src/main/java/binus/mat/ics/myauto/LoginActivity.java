@@ -66,13 +66,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "a@a:a"
-};
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
@@ -104,6 +97,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private String hash = null;
+    private String userId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -418,6 +412,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             } else if (map.get("result").toString().equals("1.0")) {
                 hash = map.get("hash").toString();
+                userId = map.get("user_id").toString();
                 return true;
             }
 
@@ -435,6 +430,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 sp.putBoolean("logged_in", true);
                 sp.putString("hash", hash);
                 sp.putString("user_email", mEmail);
+                sp.putString("user_id", userId);
                 sp.apply();
 
                 startActivity(new Intent(LoginActivity.this, MainMenuActivity.class));
