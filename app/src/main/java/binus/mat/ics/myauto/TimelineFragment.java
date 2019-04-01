@@ -1,5 +1,7 @@
 package binus.mat.ics.myauto;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,9 +14,14 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import binus.mat.ics.myauto.structures.CarResponseStructure;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -28,11 +35,11 @@ public class TimelineFragment extends Fragment {
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
-
     public String PostResponse = "";
 
-    Gson gson = new Gson();
+    CarResponseStructure[] responseArray;
 
+    Gson gson = new Gson();
     OkHttpClient client = new OkHttpClient();
 
     @Nullable
@@ -41,75 +48,42 @@ public class TimelineFragment extends Fragment {
         //returning our layout file
         //change R.layout.yourlayoutfilename for each of your fragments
         return inflater.inflate(R.layout.fragment_timeline, container, false);
-
     }
 
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        String PostUrl = "http://wendrian.duckdns.org/stanley/myauto/getVehiclesFromUser.php";
-        String json = "{\"asas\": 1}";
-
-        try {
-            postJson(PostUrl, json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    void postJson(String url, String json) throws IOException {
-
-        OkHttpClient client = new OkHttpClient();
-
-        RequestBody body = RequestBody.create(JSON, json);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                call.cancel();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-                final String myResponse = response.body().string();
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        PostResponse = myResponse;
-                        ResponseStructure[] responseArray = gson.fromJson(PostResponse, ResponseStructure[].class);
-
-                        updateView(responseArray);
-                    }
-                });
-            }
-        });
-    }
-
-    private void updateView(ResponseStructure[] responseArray) {
+    private void updateView() {
         Log.d("askkas", responseArray[0].type);
         getActivity().setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(getString(R.string.choose_vehicle));
+
+        ArrayList<CharSequence> carType = new ArrayList<>();
+        for (CarResponseStructure temp : responseArray) {
+            carType.add(temp.brand + " " + temp.type);
+        }
+
+        CharSequence[] cs = carType.toArray(new CharSequence[carType.size()]);
+
+        builder.setItems(cs, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    // pilih mobil
+                }
+            }
+        });
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 
-    class ResponseStructure {
-        int ID;
-        int cat_id;
-        String category;
-        int brand_id;
-        String brand;
-        int vehicle_type_id;
-        String type;
-        int make_year;
-        int stnk_year;
-        int odometer;
-    }
+
 }

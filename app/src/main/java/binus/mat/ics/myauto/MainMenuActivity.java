@@ -1,6 +1,8 @@
 package binus.mat.ics.myauto;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
@@ -11,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,10 +28,25 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Locale;
+
+import binus.mat.ics.myauto.structures.CarResponseStructure;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import static java.lang.Thread.sleep;
 
 public class MainMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,6 +54,15 @@ public class MainMenuActivity extends AppCompatActivity
     public TextView appNameSidebar;
     public TextView toolbarTitle;
     public Toolbar toolbar;
+
+    // OkHttp
+    public static final MediaType JSON = MediaType.get("application/json");
+    String PostUrl = "http://wendrian.duckdns.org/stanley/myauto/getVehiclesFromUser.php";
+
+    CarResponseStructure[] responseArray;
+    Gson gson = new Gson();
+
+    OkHttpClient client = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +83,28 @@ public class MainMenuActivity extends AppCompatActivity
         toolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText( MainMenuActivity.this, "hello", Toast.LENGTH_LONG).show();
+                if (responseArray != null) {
+                    //Toast.makeText(MainMenuActivity.this, "hello", Toast.LENGTH_LONG).show();
+                    // setup the alert builder
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainMenuActivity.this);
+                    builder.setTitle(getString(R.string.choose_vehicle));
+
+                    ArrayList<CharSequence> carType = new ArrayList<>();
+                    for (CarResponseStructure temp : responseArray) {
+                        carType.add(temp.brand + " " + temp.type);
+                    }
+
+                    CharSequence[] cs = carType.toArray(new CharSequence[carType.size()]);
+
+                    builder.setItems(cs, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type + " ▾");
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
         toolbarTitle.setText(getSupportActionBar().getTitle() + " ▾");
@@ -116,6 +164,34 @@ public class MainMenuActivity extends AppCompatActivity
         );
 
         appNameSidebar.setPadding(0,statusBarHeight+(int)px,0,0);
+
+
+        // Get vehicle data
+        RequestBody body = RequestBody.create(JSON, "");
+        Request request = new Request.Builder().url(PostUrl).post(body).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                call.cancel();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                responseArray = gson.fromJson(response.body().string(), CarResponseStructure[].class);
+
+                runOnUiThread(() -> {
+                    setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+
+                });
+            }
+        });
 
     }
 
