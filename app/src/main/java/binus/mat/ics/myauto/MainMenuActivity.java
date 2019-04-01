@@ -219,7 +219,7 @@ public class MainMenuActivity extends AppCompatActivity
 
     @Override
     public void onTitleChanged (CharSequence title, int color) {
-        toolbarTitle.setText(this.getTitle() + " ▾");
+        toolbarTitle.setText(this.getTitle());
     }
 
 //    @Override
