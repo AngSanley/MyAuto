@@ -428,7 +428,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 SharedPreferences.Editor sp = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE).edit();
 
                 sp.putBoolean("logged_in", true);
-                sp.putString("hash", hash);
+                sp.putString("user_hash", hash);
                 sp.putString("user_email", mEmail);
                 sp.putString("user_id", userId);
                 sp.apply();

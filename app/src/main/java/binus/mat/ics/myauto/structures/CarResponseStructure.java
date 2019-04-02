@@ -1,6 +1,7 @@
 package binus.mat.ics.myauto.structures;
 
 public class CarResponseStructure {
+    public int result;
     public int ID;
     public int cat_id;
     public String category;

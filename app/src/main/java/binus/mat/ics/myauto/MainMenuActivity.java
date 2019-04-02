@@ -29,13 +29,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import binus.mat.ics.myauto.structures.CarResponseStructure;
 import okhttp3.Call;
@@ -57,7 +61,7 @@ public class MainMenuActivity extends AppCompatActivity
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
-    String PostUrl = "http://wendrian.duckdns.org/stanley/myauto/getVehiclesFromUser.php";
+    String PostUrl = "http://wendrian.duckdns.org/stanley/myauto/api/vehiclelist.php";
 
     CarResponseStructure[] responseArray;
     Gson gson = new Gson();
@@ -112,15 +116,6 @@ public class MainMenuActivity extends AppCompatActivity
         // disable default title, use custom title instead
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -165,9 +160,20 @@ public class MainMenuActivity extends AppCompatActivity
 
         appNameSidebar.setPadding(0,statusBarHeight+(int)px,0,0);
 
+        // make JSON to get vehicle data
+        SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+        Map<String, String> postParam = new HashMap<>();
+        postParam.put("user_id", mSharedPref.getString("user_id", "null"));
+        postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
 
+
+
+        // Convert Map to JSONObject
+        JSONObject jObj = new JSONObject(postParam);
+
+        Log.d("aaaaa", jObj.toString());
         // Get vehicle data
-        RequestBody body = RequestBody.create(JSON, "");
+        RequestBody body = RequestBody.create(JSON, jObj.toString());
         Request request = new Request.Builder().url(PostUrl).post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -187,8 +193,13 @@ public class MainMenuActivity extends AppCompatActivity
                 responseArray = gson.fromJson(response.body().string(), CarResponseStructure[].class);
 
                 runOnUiThread(() -> {
-                    setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
-
+                    if(responseArray[0].result == 0) {
+                        Log.e("MyAuto", "Token invalid! Logging out...");
+                        Toast.makeText(MainMenuActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG).show();
+                        doLogout();
+                    } else {
+                        setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+                    }
                 });
             }
         });
@@ -232,16 +243,22 @@ public class MainMenuActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
-            SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
-            mSharedPref.edit().putBoolean("logged_in", false).commit();
-
-            startActivity(new Intent(MainMenuActivity.this, LoginActivity.class));
-
-            finish();
+            doLogout();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doLogout() {
+        SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+        mSharedPref.edit().putBoolean("logged_in", false).commit();
+        mSharedPref.edit().putString("user_id", null).commit();
+        mSharedPref.edit().putString("user_hash", null).commit();
+
+        startActivity(new Intent(MainMenuActivity.this, LoginActivity.class));
+
+        finish();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

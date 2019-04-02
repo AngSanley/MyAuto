@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -109,7 +111,7 @@ public class TimelineFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         texts = new ArrayList<>();
-        for (int i = 1; i <= 50; ++i) {
+        for (int i = 1; i <= 10; ++i) {
             texts.add(new DataTimeline(i, "Aashadshd" + i));
         }
     }
@@ -133,6 +135,10 @@ public class TimelineFragment extends Fragment {
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        FloatingActionButton fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(view1 -> Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
 
         updateUI();
 
