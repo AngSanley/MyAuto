@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.gson.Gson;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import binus.mat.ics.myauto.structures.CarResponseStructure;
 import okhttp3.Call;
@@ -52,23 +55,28 @@ public class TimelineFragment extends Fragment {
     private TimeLineAdapter mAdapter;
 
     // Temporary data
-    private ArrayList<String> texts;
+    private ArrayList<DataTimeline> texts;
 
     public class TimeLineViewHolder extends RecyclerView.ViewHolder {
         private TimelineView mTimelineView;
         private TextView mTextView;
-        private String mText;
+        private DataTimeline mDt;
+        private CardView mCardView;
 
         public TimeLineViewHolder(View itemView, int viewType) {
             super(itemView);
             mTextView = itemView.findViewById(R.id.text_view);
             mTimelineView = (TimelineView) itemView.findViewById(R.id.timeline);
             mTimelineView.initLine(viewType);
+            mCardView = itemView.findViewById(R.id.card_view);
         }
 
-        public void bind(String text) {
-            mText = text;
-            mTextView.setText(mText);
+        public void bind(DataTimeline dt) {
+            mDt = dt;
+            mTextView.setText(mDt.title);
+            mCardView.setOnClickListener(view -> {
+                Toast.makeText(getContext(), String.valueOf(mDt.count), Toast.LENGTH_LONG).show();
+            });
         }
     }
 
@@ -101,8 +109,18 @@ public class TimelineFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         texts = new ArrayList<>();
-        for (int i = 1; i <= 20; ++i) {
-            texts.add("Text number " + i);
+        for (int i = 1; i <= 50; ++i) {
+            texts.add(new DataTimeline(i, "Aashadshd" + i));
+        }
+    }
+
+    public class DataTimeline {
+        int count;
+        String title;
+
+        public DataTimeline(int count, String title){
+            this.count = count;
+            this.title = title;
         }
     }
 
