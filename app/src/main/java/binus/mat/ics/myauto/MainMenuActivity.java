@@ -83,10 +83,11 @@ public class MainMenuActivity extends AppCompatActivity
         Typeface serifFontLight = Typeface.createFromAsset(getAssets(),  "fonts/NeuzeitGroLig.ttf");
         Typeface serifFontBold = Typeface.createFromAsset(getAssets(),  "fonts/NeuzeitGroBold.ttf");
 
-        // custom title
+        // custom title (change car)
         toolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // check if array ready
                 if (responseArray != null) {
                     //Toast.makeText(MainMenuActivity.this, "hello", Toast.LENGTH_LONG).show();
                     // setup the alert builder
@@ -130,17 +131,6 @@ public class MainMenuActivity extends AppCompatActivity
         appNameSidebar = headerView.findViewById(R.id.appNameSidebar);
         appNameSidebar.setTypeface(serifFont);
 
-        // select Timeline view
-        navigationView.getMenu().getItem(0).setChecked(true);
-        Fragment fragment = null;
-        fragment = new TimelineFragment();
-
-        //replacing the fragment
-        if (fragment != null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
-            ft.commit();
-        }
 
         // set padding
         int statusBarHeight = 0;
@@ -171,7 +161,6 @@ public class MainMenuActivity extends AppCompatActivity
         // Convert Map to JSONObject
         JSONObject jObj = new JSONObject(postParam);
 
-        Log.d("aaaaa", jObj.toString());
         // Get vehicle data
         RequestBody body = RequestBody.create(JSON, jObj.toString());
         Request request = new Request.Builder().url(PostUrl).post(body).build();
@@ -184,12 +173,6 @@ public class MainMenuActivity extends AppCompatActivity
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
                 responseArray = gson.fromJson(response.body().string(), CarResponseStructure[].class);
 
                 runOnUiThread(() -> {
@@ -199,6 +182,19 @@ public class MainMenuActivity extends AppCompatActivity
                         doLogout();
                     } else {
                         setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+
+                        //replacing the fragment
+                        // select Timeline view
+                        navigationView.getMenu().getItem(0).setChecked(true);
+                        Fragment fragment = null;
+                        fragment = new TimelineFragment();
+
+                        if (fragment != null) {
+                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                            ft.replace(R.id.content_frame, fragment);
+                            ft.commit();
+                        }
                     }
                 });
             }
@@ -301,6 +297,7 @@ public class MainMenuActivity extends AppCompatActivity
         //replacing the fragment
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
             ft.replace(R.id.content_frame, fragment, tag);
             ft.commit();
         }
@@ -314,21 +311,4 @@ public class MainMenuActivity extends AppCompatActivity
     public void onTitleChanged (CharSequence title, int color) {
         toolbarTitle.setText(this.getTitle());
     }
-
-//    @Override
-//    public boolean dispatchKeyEvent(KeyEvent event) {
-//        Toast.makeText(MainMenuActivity.this, "jajaja", Toast.LENGTH_LONG).show();
-//        getSupportActionBar().setTitle("asasas");
-//        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-//
-//            MarketplaceFragment test = (MarketplaceFragment) getSupportFragmentManager().findFragmentByTag("marketplace");
-//            if (test != null && test.isVisible()) {
-//                test.onBackKeyPressed(KeyEvent.ACTION_DOWN);
-//            } else {
-//                //finish();
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
 }

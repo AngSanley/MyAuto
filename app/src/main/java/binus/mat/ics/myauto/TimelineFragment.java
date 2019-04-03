@@ -2,6 +2,9 @@ package binus.mat.ics.myauto;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +26,7 @@ import com.github.vipulasri.timelineview.TimelineView;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,6 +146,12 @@ public class TimelineFragment extends Fragment {
         fab.setOnClickListener(view1 -> Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
 
+        MainMenuActivity mainmenu = (MainMenuActivity) getActivity();
+
+        // TODO change URL
+        new DownloadImageFromInternet((ImageView) view.findViewById(R.id.imageView))
+                .execute(mainmenu.responseArray[0].img_url);
+
         updateUI();
 
         return view;
@@ -164,34 +175,30 @@ public class TimelineFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void updateView() {
-        Log.d("askkas", responseArray[0].type);
-        getActivity().setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+    private class DownloadImageFromInternet extends AsyncTask<String, Void, Bitmap> {
+        ImageView imageView;
 
-
-        // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(getString(R.string.choose_vehicle));
-
-        ArrayList<CharSequence> carType = new ArrayList<>();
-        for (CarResponseStructure temp : responseArray) {
-            carType.add(temp.brand + " " + temp.type);
+        public DownloadImageFromInternet(ImageView imageView) {
+            this.imageView = imageView;
+            //Toast.makeText(getContext(), "Please wait, it may take a few minute...", Toast.LENGTH_SHORT).show();
         }
 
-        CharSequence[] cs = carType.toArray(new CharSequence[carType.size()]);
+        protected Bitmap doInBackground(String... urls) {
+            String imageURL = urls[0];
+            Bitmap bimage = null;
+            try {
+                InputStream in = new java.net.URL(imageURL).openStream();
+                bimage = BitmapFactory.decodeStream(in);
 
-        builder.setItems(cs, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    // pilih mobil
-                }
+            } catch (Exception e) {
+                Log.e("Error Message", e.getMessage());
+                e.printStackTrace();
             }
-        });
-        AlertDialog dialog = builder.create();
+            return bimage;
+        }
 
-        dialog.show();
+        protected void onPostExecute(Bitmap result) {
+            imageView.setImageBitmap(result);
+        }
     }
-
-
 }
