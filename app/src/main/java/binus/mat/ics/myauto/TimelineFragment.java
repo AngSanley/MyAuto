@@ -68,9 +68,10 @@ public class TimelineFragment extends Fragment {
         public TimeLineViewHolder(View itemView, int viewType) {
             super(itemView);
             mTextView = itemView.findViewById(R.id.text_view);
-            mTimelineView = (TimelineView) itemView.findViewById(R.id.timeline);
+            mTimelineView = itemView.findViewById(R.id.timeline);
             mTimelineView.initLine(viewType);
             mCardView = itemView.findViewById(R.id.card_view);
+            mRecyclerView.setNestedScrollingEnabled(false);
         }
 
         public void bind(DataTimeline dt) {
@@ -111,7 +112,7 @@ public class TimelineFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         texts = new ArrayList<>();
-        for (int i = 1; i <= 10; ++i) {
+        for (int i = 1; i <= 9; ++i) {
             texts.add(new DataTimeline(i, "Aashadshd" + i));
         }
     }
