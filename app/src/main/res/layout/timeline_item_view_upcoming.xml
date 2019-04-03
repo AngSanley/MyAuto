@@ -17,7 +17,7 @@
         app:layout_constraintRight_toLeftOf="@id/card_view"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:marker="@color/colorPrimary"
+        app:marker="@drawable/ic_circle_accent"
         app:lineWidth="2dp"
         app:markerSize="15dp"
         android:paddingBottom="80dp"
@@ -35,6 +35,7 @@
         app:layout_constraintLeft_toRightOf="@id/timeline"
         app:layout_constraintTop_toTopOf="parent"
         android:foreground="?android:attr/selectableItemBackground"
+        card_view:cardBackgroundColor="@color/colorAccent"
         android:clickable="true">
 
         <LinearLayout
@@ -49,21 +50,23 @@
                 android:padding="10dp">
 
                 <TextView
-                    android:id="@+id/text_view"
+                    android:id="@+id/text_view1"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:text="TextView" />
+                    android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/text_view2"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OK OK OK" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:id="@+id/text_view3"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OK OK OK" />
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 
@@ -75,22 +78,25 @@
                 android:padding="10dp">
 
                 <TextView
+                    android:id="@+id/text_view4"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_height="wrap_content"
-                    android:text="OK OK OK" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:id="@+id/text_view5"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_height="wrap_content"
-                    android:text="OK OK OK" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:id="@+id/text_view6"
+                    android:textColor="@android:color/white"
                     android:layout_width="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_height="wrap_content"
-                    android:text="OK OK OK" />
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 

@@ -1,7 +1,7 @@
 package binus.mat.ics.myauto;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -25,17 +25,21 @@ import android.widget.Toast;
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Time;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import binus.mat.ics.myauto.structures.ActivityResponseStructure;
 import binus.mat.ics.myauto.structures.CarResponseStructure;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -53,6 +57,7 @@ public class TimelineFragment extends Fragment {
     public String PostResponse = "";
 
     CarResponseStructure[] responseArray;
+    ActivityResponseStructure[] activityResponseArray;
 
     Gson gson = new Gson();
     OkHttpClient client = new OkHttpClient();
@@ -66,13 +71,19 @@ public class TimelineFragment extends Fragment {
 
     public class TimeLineViewHolder extends RecyclerView.ViewHolder {
         private TimelineView mTimelineView;
-        private TextView mTextView;
+        private TextView mTextView1, mTextView2, mTextView3, mTextView4, mTextView5, mTextView6;
         private DataTimeline mDt;
         private CardView mCardView;
 
         public TimeLineViewHolder(View itemView, int viewType) {
             super(itemView);
-            mTextView = itemView.findViewById(R.id.text_view);
+            mTextView1 = itemView.findViewById(R.id.text_view1);
+            mTextView2 = itemView.findViewById(R.id.text_view2);
+            mTextView3 = itemView.findViewById(R.id.text_view3);
+            mTextView4 = itemView.findViewById(R.id.text_view4);
+            mTextView5 = itemView.findViewById(R.id.text_view5);
+            mTextView6 = itemView.findViewById(R.id.text_view6);
+
             mTimelineView = itemView.findViewById(R.id.timeline);
             mTimelineView.initLine(viewType);
             mCardView = itemView.findViewById(R.id.card_view);
@@ -81,7 +92,12 @@ public class TimelineFragment extends Fragment {
 
         public void bind(DataTimeline dt) {
             mDt = dt;
-            mTextView.setText(mDt.title);
+            mTextView1.setText(mDt.title);
+            mTextView2.setText(Integer.toString(mDt.odometer) + " km");
+            mTextView3.setText(mDt.location);
+            mTextView4.setText(mDt.date);
+            mTextView5.setText(mDt.price);
+            mTextView6.setText("");
             mCardView.setOnClickListener(view -> {
                 Toast.makeText(getContext(), String.valueOf(mDt.count), Toast.LENGTH_LONG).show();
             });
@@ -93,7 +109,7 @@ public class TimelineFragment extends Fragment {
         @NonNull
         @Override
         public TimeLineViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = View.inflate(getActivity(), R.layout.item_view, null);
+            View view = View.inflate(getActivity(), R.layout.timeline_item_view, null);
             return new TimeLineViewHolder(view, i);
         }
 
@@ -116,19 +132,90 @@ public class TimelineFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainMenuActivity mainMenuActivity = (MainMenuActivity) getActivity();
+        responseArray = mainMenuActivity.responseArray;
         texts = new ArrayList<>();
-        for (int i = 1; i <= 9; ++i) {
-            texts.add(new DataTimeline(i, "Aashadshd" + i));
-        }
+
+        // make JSON to get vehicle data
+        SharedPreferences mSharedPref = getActivity().getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+        Map<String, String> postParam = new HashMap<>();
+        postParam.put("user_id", mSharedPref.getString("user_id", "null"));
+        postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
+        postParam.put("vehicle_id", String.valueOf(responseArray[0].vehicle_id));
+
+        // Convert Map to JSONObject
+        JSONObject jObj = new JSONObject(postParam);
+
+        // Get vehicle data
+        RequestBody body = RequestBody.create(JSON, jObj.toString());
+        // TODO change url
+        Request request = new Request.Builder().url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php").post(body).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                call.cancel();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                activityResponseArray = gson.fromJson(response.body().string(), ActivityResponseStructure[].class);
+
+                // format price
+                DecimalFormat kursIndonesia = (DecimalFormat) DecimalFormat.getCurrencyInstance();
+                DecimalFormatSymbols formatRp = new DecimalFormatSymbols();
+
+                formatRp.setCurrencySymbol("Rp. ");
+                formatRp.setMonetaryDecimalSeparator(',');
+                formatRp.setGroupingSeparator('.');
+
+                kursIndonesia.setDecimalFormatSymbols(formatRp);
+
+                // format timestamp
+                SimpleDateFormat inputDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                SimpleDateFormat outputDate = new SimpleDateFormat("dd MMM yyyy");
+
+                for (int i = activityResponseArray.length-1; i >= 0; --i) {
+                    //parse date
+                    String date = null;
+                    try {
+                        date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
+                    } catch (ParseException e) {
+                    }
+
+                    String title = activityResponseArray[i].activity_type_name;
+                    int odometer = activityResponseArray[i].odometer;
+                    String location = activityResponseArray[i].location;
+                    String price = kursIndonesia.format(activityResponseArray[i].price);
+                    texts.add(new DataTimeline(i, title, odometer, location, date, price));
+                }
+
+                // show recyclerview
+                getActivity().runOnUiThread(() -> {
+                    mRecyclerView = getView().findViewById(R.id.recycler_view);
+                    mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    updateUI();
+                });
+            }
+        });
+
     }
 
     public class DataTimeline {
         int count;
         String title;
+        int odometer;
+        String location;
+        String date;
+        String price;
 
-        public DataTimeline(int count, String title){
+        public DataTimeline(int count, String title, int odometer, String location, String date, String price){
             this.count = count;
             this.title = title;
+            this.odometer = odometer;
+            this.location = location;
+            this.date = date;
+            this.price = price;
         }
     }
 
@@ -139,8 +226,6 @@ public class TimelineFragment extends Fragment {
         //change R.layout.yourlayoutfilename for each of your fragments
         View view = inflater.inflate(R.layout.fragment_timeline, container, false);
 
-        mRecyclerView = view.findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(view1 -> Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -152,7 +237,7 @@ public class TimelineFragment extends Fragment {
         new DownloadImageFromInternet((ImageView) view.findViewById(R.id.imageView))
                 .execute(mainmenu.responseArray[0].img_url);
 
-        updateUI();
+
 
         return view;
     }
