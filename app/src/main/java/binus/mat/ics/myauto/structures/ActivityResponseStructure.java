@@ -11,6 +11,6 @@ public class ActivityResponseStructure {
     public int price;
     public int odometer;
     public double fuel_tank;
-    public boolean done;
+    public int done;
     public String timestamp;
 }

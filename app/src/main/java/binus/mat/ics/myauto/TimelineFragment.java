@@ -120,8 +120,10 @@ public class TimelineFragment extends Fragment {
         @NonNull
         @Override
         public TimeLineViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = View.inflate(getActivity(), R.layout.timeline_item_view, null);
-            return new TimeLineViewHolder(view, i);
+            View view = null;
+            if (i % 2 == 0) view = View.inflate(getActivity(), R.layout.timeline_item_view, null);
+            else view = View.inflate(getActivity(), R.layout.timeline_item_view_upcoming, null);
+            return new TimeLineViewHolder(view, i/2);
         }
 
         @Override
@@ -136,7 +138,10 @@ public class TimelineFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-            return TimelineView.getTimeLineViewType(position, getItemCount());
+            int type = TimelineView.getTimeLineViewType(position, getItemCount());
+            // posisi array terbalik
+            if (activityResponseArray[activityResponseArray.length-position-1].done == 1) return type*2;
+            else return type*2+1;
         }
     }
 
