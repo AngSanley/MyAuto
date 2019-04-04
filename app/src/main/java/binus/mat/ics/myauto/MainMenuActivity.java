@@ -276,9 +276,9 @@ public class MainMenuActivity extends AppCompatActivity
 
     private void doLogout() {
         SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
-        mSharedPref.edit().putBoolean("logged_in", false).commit();
-        mSharedPref.edit().putString("user_id", null).commit();
-        mSharedPref.edit().putString("user_hash", null).commit();
+        SharedPreferences mSharedP = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+        mSharedPref.edit().clear().commit();
+        mSharedP.edit().clear().commit();
 
         startActivity(new Intent(MainMenuActivity.this, LoginActivity.class));
 
