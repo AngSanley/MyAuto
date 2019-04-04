@@ -58,6 +58,7 @@ public class MainMenuActivity extends AppCompatActivity
     public TextView appNameSidebar;
     public TextView toolbarTitle;
     public Toolbar toolbar;
+    private int timelineId;
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
@@ -105,6 +106,7 @@ public class MainMenuActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type + " ▾");
+                            refreshFragment(which);
                         }
                     });
                     AlertDialog dialog = builder.create();
@@ -126,6 +128,9 @@ public class MainMenuActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View headerView = navigationView.getHeaderView(0);
+
+        // set timeline id
+        timelineId = navigationView.getMenu().getItem(0).getItemId();
 
         // set custom font
         appNameSidebar = headerView.findViewById(R.id.appNameSidebar);
@@ -181,13 +186,15 @@ public class MainMenuActivity extends AppCompatActivity
                         Toast.makeText(MainMenuActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG).show();
                         doLogout();
                     } else {
-                        setTitle(responseArray[0].brand + " " + responseArray[0].type + " ▾");
+                        SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+                        setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type + " ▾");
 
                         //replacing the fragment
                         // select Timeline view
+                        // TODO get last state from memory
                         navigationView.getMenu().getItem(0).setChecked(true);
                         Fragment fragment = null;
-                        fragment = new TimelineFragment();
+                        fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
 
                         if (fragment != null) {
                             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -200,6 +207,27 @@ public class MainMenuActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    private void refreshFragment(int index) {
+        Fragment fragment = null;
+
+        NavigationView n = findViewById(R.id.nav_view);
+
+        if (n.getCheckedItem().getItemId() == timelineId) {
+            fragment = TimelineFragment.newInstance(index);
+        }
+
+        SharedPreferences.Editor sp = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE).edit();
+        sp.putInt("current_index", index);
+        sp.apply();
+
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+            ft.replace(R.id.content_frame, fragment);
+            ft.commit();
+        }
     }
 
     @Override
@@ -269,8 +297,9 @@ public class MainMenuActivity extends AppCompatActivity
         String tag = null;
 
         if (id == R.id.nav_timeline) {
-            fragment = new TimelineFragment();
-
+            // TODO get last state from memory
+            SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+            fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
         } else if (id == R.id.nav_vehicle_information) {
 
         } else if (id == R.id.nav_report) {

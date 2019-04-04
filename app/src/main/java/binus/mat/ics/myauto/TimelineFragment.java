@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Time;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -51,6 +52,16 @@ import okhttp3.Response;
 
 
 public class TimelineFragment extends Fragment {
+    private static final String key = "haehehaheah";
+    private int arrayIndex;
+
+    public static TimelineFragment newInstance(int index) {
+        Bundle args = new Bundle();
+        args.putInt(key, index);
+        TimelineFragment fragment = new TimelineFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
@@ -136,12 +147,14 @@ public class TimelineFragment extends Fragment {
         responseArray = mainMenuActivity.responseArray;
         texts = new ArrayList<>();
 
+        arrayIndex = getArguments().getInt(key, 0);
+
         // make JSON to get vehicle data
         SharedPreferences mSharedPref = getActivity().getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
         Map<String, String> postParam = new HashMap<>();
         postParam.put("user_id", mSharedPref.getString("user_id", "null"));
         postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
-        postParam.put("vehicle_id", String.valueOf(responseArray[0].vehicle_id));
+        postParam.put("vehicle_id", String.valueOf(responseArray[arrayIndex].vehicle_id));
 
         // Convert Map to JSONObject
         JSONObject jObj = new JSONObject(postParam);
@@ -177,7 +190,7 @@ public class TimelineFragment extends Fragment {
 
                 for (int i = activityResponseArray.length-1; i >= 0; --i) {
                     //parse date
-                    String date = null;
+                    String date = "1970-01-01 00:00";
                     try {
                         date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
                     } catch (ParseException e) {
@@ -235,9 +248,7 @@ public class TimelineFragment extends Fragment {
 
         // TODO change URL
         new DownloadImageFromInternet((ImageView) view.findViewById(R.id.imageView))
-                .execute(mainmenu.responseArray[0].img_url);
-
-
+                .execute(mainmenu.responseArray[arrayIndex].img_url);
 
         return view;
     }
