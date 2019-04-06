@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.gson.Gson;
 
@@ -72,6 +73,10 @@ public class TimelineFragment extends Fragment {
 
     Gson gson = new Gson();
     OkHttpClient client = new OkHttpClient();
+
+    // Shimmer
+    private ShimmerFrameLayout mImageViewShimmerLayout;
+    private ShimmerFrameLayout mRecyclerViewShimmerLayout;
 
     // Timeline
     private RecyclerView mRecyclerView;
@@ -170,6 +175,7 @@ public class TimelineFragment extends Fragment {
         Request request = new Request.Builder().url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php").post(body).build();
 
         client.newCall(request).enqueue(new Callback() {
+
             @Override
             public void onFailure(Call call, IOException e) {
                 call.cancel();
@@ -210,7 +216,10 @@ public class TimelineFragment extends Fragment {
 
                 // show recyclerview
                 getActivity().runOnUiThread(() -> {
+                    mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                    mRecyclerViewShimmerLayout.setVisibility(View.GONE);
                     mRecyclerView = getView().findViewById(R.id.recycler_view);
+                    mRecyclerView.setVisibility(View.VISIBLE);
                     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                     updateUI();
                 });
@@ -243,7 +252,12 @@ public class TimelineFragment extends Fragment {
         //returning our layout file
         //change R.layout.yourlayoutfilename for each of your fragments
         View view = inflater.inflate(R.layout.fragment_timeline, container, false);
+        mImageViewShimmerLayout = view.findViewById(R.id.imageView_shimmer);
+        mRecyclerViewShimmerLayout = view.findViewById(R.id.recyclerView_shimmer);
+        mRecyclerView = view.findViewById(R.id.recycler_view);
 
+        mRecyclerView.setVisibility(View.GONE);
+        mRecyclerViewShimmerLayout.startShimmerAnimation();
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(view1 -> Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -281,6 +295,8 @@ public class TimelineFragment extends Fragment {
 
         public DownloadImageFromInternet(ImageView imageView) {
             this.imageView = imageView;
+            mImageViewShimmerLayout.startShimmerAnimation();
+            imageView.setVisibility(View.GONE);
             //Toast.makeText(getContext(), "Please wait, it may take a few minute...", Toast.LENGTH_SHORT).show();
         }
 
@@ -288,6 +304,7 @@ public class TimelineFragment extends Fragment {
             String imageURL = urls[0];
             Bitmap bimage = null;
             try {
+                //Thread.sleep(2000);
                 InputStream in = new java.net.URL(imageURL).openStream();
                 bimage = BitmapFactory.decodeStream(in);
 
@@ -299,7 +316,10 @@ public class TimelineFragment extends Fragment {
         }
 
         protected void onPostExecute(Bitmap result) {
+            imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(result);
+            mImageViewShimmerLayout.stopShimmerAnimation();
+            mImageViewShimmerLayout.setVisibility(View.GONE);
         }
     }
 }

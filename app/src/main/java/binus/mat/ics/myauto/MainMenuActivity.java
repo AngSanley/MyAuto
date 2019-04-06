@@ -5,12 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -28,17 +25,14 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import binus.mat.ics.myauto.structures.CarResponseStructure;
@@ -50,8 +44,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static java.lang.Thread.sleep;
-
 public class MainMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -59,6 +51,7 @@ public class MainMenuActivity extends AppCompatActivity
     public TextView toolbarTitle;
     public Toolbar toolbar;
     private int timelineId;
+    private ShimmerFrameLayout mShimmerViewContainer;
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
@@ -76,8 +69,11 @@ public class MainMenuActivity extends AppCompatActivity
 
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbar = findViewById(R.id.toolbar);
+        mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
 
         setSupportActionBar(toolbar);
+
+        mShimmerViewContainer.startShimmerAnimation();
 
         // declare custom fonts
         Typeface serifFont = Typeface.createFromAsset(getAssets(),  "fonts/NeuzeitGro.ttf");
@@ -179,15 +175,19 @@ public class MainMenuActivity extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 responseArray = gson.fromJson(response.body().string(), CarResponseStructure[].class);
-
                 runOnUiThread(() -> {
                     if(responseArray[0].result == 0) {
                         Log.e("MyAuto", "Token invalid! Logging out...");
                         Toast.makeText(MainMenuActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG).show();
                         doLogout();
                     } else {
+
                         SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
                         setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type + " ▾");
+
+                        // stop shimmer
+                        mShimmerViewContainer.stopShimmerAnimation();
+                        mShimmerViewContainer.setVisibility(View.GONE);
 
                         //replacing the fragment
                         // select Timeline view
