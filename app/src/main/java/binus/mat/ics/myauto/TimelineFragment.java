@@ -265,8 +265,7 @@ public class TimelineFragment extends Fragment {
 
         MainMenuActivity mainmenu = (MainMenuActivity) getActivity();
 
-        // TODO change URL
-        new DownloadImageFromInternet((ImageView) view.findViewById(R.id.imageView))
+        new DownloadImageFromInternet(view.findViewById(R.id.imageView))
                 .execute(mainmenu.responseArray[arrayIndex].img_url);
 
         return view;

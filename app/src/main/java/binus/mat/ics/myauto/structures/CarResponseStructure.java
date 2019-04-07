@@ -14,4 +14,5 @@ public class CarResponseStructure {
     public int stnk_year;
     public int odometer;
     public String img_url;
+    public String errorString;
 }

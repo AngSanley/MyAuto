@@ -180,7 +180,10 @@ public class MainMenuActivity extends AppCompatActivity
                         Log.e("MyAuto", "Token invalid! Logging out...");
                         Toast.makeText(MainMenuActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG).show();
                         doLogout();
-                    } else {
+                    } else if (responseArray[0].result == 2) {
+                        // user has no vehicle registered. handle the problem
+
+                    } else if (responseArray[0].result == 1){
 
                         SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
                         setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type + " ▾");
@@ -202,6 +205,10 @@ public class MainMenuActivity extends AppCompatActivity
                             ft.replace(R.id.content_frame, fragment);
                             ft.commit();
                         }
+                    } else {
+                        Log.e("MyAuto", "Unknown error. Error code: " + responseArray[0].errorString);
+                        Toast.makeText(MainMenuActivity.this, getString(R.string.unknown_error) + " " + responseArray[0].errorString, Toast.LENGTH_LONG).show();
+                        doLogout();
                     }
                 });
             }
