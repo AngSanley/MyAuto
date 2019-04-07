@@ -55,12 +55,15 @@ public class MainMenuActivity extends AppCompatActivity
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
+    String GetProfileUrl = "http://wendrian.duckdns.org/stanley/myauto/api/getuserinfo.php";
     String PostUrl = "http://wendrian.duckdns.org/stanley/myauto/api/vehiclelist.php";
 
     CarResponseStructure[] responseArray;
     Gson gson = new Gson();
 
     OkHttpClient client = new OkHttpClient();
+
+    boolean shouldExecuteOnResume;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,7 @@ public class MainMenuActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mShimmerViewContainer.startShimmerAnimation();
+        shouldExecuteOnResume = false;
 
         // declare custom fonts
         Typeface serifFont = Typeface.createFromAsset(getAssets(),  "fonts/NeuzeitGro.ttf");
@@ -158,7 +162,6 @@ public class MainMenuActivity extends AppCompatActivity
         postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
 
 
-
         // Convert Map to JSONObject
         JSONObject jObj = new JSONObject(postParam);
 
@@ -230,12 +233,24 @@ public class MainMenuActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(shouldExecuteOnResume){
+            // refresh fragment
+            SharedPreferences sp = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+            refreshFragment(sp.getInt("current_index", 0));
+        } else {
+            shouldExecuteOnResume = true;
+        }
+    }
+
     private void refreshFragment(int index) {
         Fragment fragment = null;
 
         NavigationView n = findViewById(R.id.nav_view);
 
-        if (n.getCheckedItem().getItemId() == timelineId) {
+        if (n.getCheckedItem() != null && n.getCheckedItem().getItemId() == timelineId) {
             fragment = TimelineFragment.newInstance(index);
         }
 
