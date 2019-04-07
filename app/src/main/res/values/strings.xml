@@ -120,4 +120,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="unknown_error">Unknown Error</string>
     <string name="no_vehicle_activity">This vehicle has no activity recorded. Please use the + button below to add a new activity.</string>
+    <string name="no_vehicle">No vehicle registered. Please add one.</string>
+    <string name="empty_garage">Hi, %1$s! Your garage is empty. Why don\'t you add some vehicle?</string>
+    <string name="add_vehicle">Add new vehicle</string>
 </resources>
