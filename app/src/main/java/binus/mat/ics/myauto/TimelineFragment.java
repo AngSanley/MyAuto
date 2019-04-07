@@ -1,5 +1,7 @@
 package binus.mat.ics.myauto;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -199,30 +201,49 @@ public class TimelineFragment extends Fragment {
                 SimpleDateFormat inputDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 SimpleDateFormat outputDate = new SimpleDateFormat("dd MMM yyyy");
 
-                for (int i = activityResponseArray.length-1; i >= 0; --i) {
-                    //parse date
-                    String date = "1970-01-01 00:00";
-                    try {
-                        date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
-                    } catch (ParseException e) {
+                if (activityResponseArray != null && activityResponseArray[0].result == 1) {
+                    for (int i = activityResponseArray.length - 1; i >= 0; --i) {
+                        //parse date
+                        String date = "1970-01-01 00:00";
+                        try {
+                            date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
+                        } catch (ParseException e) {
+                        }
+
+                        String title = activityResponseArray[i].activity_type_name;
+                        int odometer = activityResponseArray[i].odometer;
+                        String location = activityResponseArray[i].location;
+                        String price = kursIndonesia.format(activityResponseArray[i].price);
+                        texts.add(new DataTimeline(i, title, odometer, location, date, price));
                     }
 
-                    String title = activityResponseArray[i].activity_type_name;
-                    int odometer = activityResponseArray[i].odometer;
-                    String location = activityResponseArray[i].location;
-                    String price = kursIndonesia.format(activityResponseArray[i].price);
-                    texts.add(new DataTimeline(i, title, odometer, location, date, price));
+                    // show recyclerview
+                    getActivity().runOnUiThread(() -> {
+                        mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                        mRecyclerViewShimmerLayout.setVisibility(View.GONE);
+                        mRecyclerView = getView().findViewById(R.id.recycler_view);
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        updateUI();
+                    });
+                } else if (activityResponseArray != null && responseArray != null && responseArray[0].result == 2) {
+                    // no vehicle present, set fragment to NoVehicleFragment
+                    NoVehicleFragment noVehicleFragment = new NoVehicleFragment();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.content_frame, noVehicleFragment, "findThisFragment")
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    // vehicle is present, but no activity
+                    // show no activity
+                    getActivity().runOnUiThread(() -> {
+                        mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                        mRecyclerViewShimmerLayout.setVisibility(View.GONE);
+                        CardView noActivityText = getView().findViewById(R.id.no_activity_text);
+                        noActivityText.setVisibility(View.VISIBLE);
+                    });
                 }
-
-                // show recyclerview
-                getActivity().runOnUiThread(() -> {
-                    mRecyclerViewShimmerLayout.stopShimmerAnimation();
-                    mRecyclerViewShimmerLayout.setVisibility(View.GONE);
-                    mRecyclerView = getView().findViewById(R.id.recycler_view);
-                    mRecyclerView.setVisibility(View.VISIBLE);
-                    mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                    updateUI();
-                });
             }
         });
 

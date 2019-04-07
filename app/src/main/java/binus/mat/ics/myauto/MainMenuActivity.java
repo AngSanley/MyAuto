@@ -85,7 +85,7 @@ public class MainMenuActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 // check if array ready
-                if (responseArray != null) {
+                if (responseArray != null && responseArray[0].result == 1) {
                     //Toast.makeText(MainMenuActivity.this, "hello", Toast.LENGTH_LONG).show();
                     // setup the alert builder
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainMenuActivity.this);
@@ -182,6 +182,21 @@ public class MainMenuActivity extends AppCompatActivity
                         doLogout();
                     } else if (responseArray[0].result == 2) {
                         // user has no vehicle registered. handle the problem
+                        // stop shimmer
+                        mShimmerViewContainer.stopShimmerAnimation();
+                        mShimmerViewContainer.setVisibility(View.GONE);
+
+                        //replacing the fragment
+                        // select Timeline view
+                        navigationView.getMenu().getItem(0).setChecked(true);
+                        Fragment fragment = new NoVehicleFragment();
+
+                        if (fragment != null) {
+                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                            ft.replace(R.id.content_frame, fragment);
+                            ft.commit();
+                        }
 
                     } else if (responseArray[0].result == 1){
 
@@ -194,7 +209,6 @@ public class MainMenuActivity extends AppCompatActivity
 
                         //replacing the fragment
                         // select Timeline view
-                        // TODO get last state from memory
                         navigationView.getMenu().getItem(0).setChecked(true);
                         Fragment fragment = null;
                         fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
