@@ -232,7 +232,6 @@ public class TimelineFragment extends Fragment {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.content_frame, noVehicleFragment, "findThisFragment")
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .addToBackStack(null)
                             .commit();
                 } else {
                     // vehicle is present, but no activity
