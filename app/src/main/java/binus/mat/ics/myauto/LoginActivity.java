@@ -399,16 +399,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
                 response = postJson(loginUrl, jObj.toString());
             } catch (IOException e) {
-                Log.e(getApplicationContext().toString(), "I got an error", e);
+                Log.e(getApplicationContext().toString(), "Connection error", e);
+                return false;
             }
 
             Gson gson = new Gson();
             Map<String,Object> map = new HashMap();
-
-            if (gson.fromJson(response, map.getClass()) == null) {
-                Log.e(getApplicationContext().toString(), "Connection error");
-                return false;
-            }
 
             map = (Map<String,Object>) gson.fromJson(response, map.getClass());
 
