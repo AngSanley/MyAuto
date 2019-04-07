@@ -92,6 +92,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimary"
                     android:layout_marginLeft="5dp"
+                    android:background="?attr/selectableItemBackground"
                     android:text="@string/register_now" />
             </LinearLayout>
 

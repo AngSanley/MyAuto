@@ -32,6 +32,9 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/action_register"></activity>
     </application>
 
 </manifest>
