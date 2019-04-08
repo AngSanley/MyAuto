@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import binus.mat.ics.myauto.structures.ActivityResponseStructure;
 import binus.mat.ics.myauto.structures.CarResponseStructure;
@@ -74,7 +75,11 @@ public class TimelineFragment extends Fragment {
     ActivityResponseStructure[] activityResponseArray;
 
     Gson gson = new Gson();
-    OkHttpClient client = new OkHttpClient();
+    OkHttpClient client = new OkHttpClient()
+            .newBuilder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
+            .build();
 
     // Shimmer
     private ShimmerFrameLayout mImageViewShimmerLayout;
@@ -173,14 +178,22 @@ public class TimelineFragment extends Fragment {
 
         // Get vehicle data
         RequestBody body = RequestBody.create(JSON, jObj.toString());
-        // TODO change url
-        Request request = new Request.Builder().url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php").post(body).build();
+        Request request = new Request.Builder()
+                .url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php")
+                .post(body)
+                .build();
 
         client.newCall(request).enqueue(new Callback() {
 
             @Override
             public void onFailure(Call call, IOException e) {
+                Log.e(getActivity().toString(), e.toString());
                 call.cancel();
+                getActivity().runOnUiThread(() -> {
+                    // stop shimmer
+                    mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                    mRecyclerViewShimmerLayout.setVisibility(View.GONE);
+                });
             }
 
             @Override
@@ -323,7 +336,6 @@ public class TimelineFragment extends Fragment {
             String imageURL = urls[0];
             Bitmap bimage = null;
             try {
-                //Thread.sleep(2000);
                 InputStream in = new java.net.URL(imageURL).openStream();
                 bimage = BitmapFactory.decodeStream(in);
 

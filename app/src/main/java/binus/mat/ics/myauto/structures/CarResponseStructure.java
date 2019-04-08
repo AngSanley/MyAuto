@@ -11,6 +11,7 @@ public class CarResponseStructure {
     public int vehicle_type_id;
     public String type;
     public int make_year;
+    public int stnk_month;
     public int stnk_year;
     public int odometer;
     public String license_plate;

@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import binus.mat.ics.myauto.structures.CarResponseStructure;
 import okhttp3.Call;
@@ -57,6 +58,7 @@ public class MainMenuActivity extends AppCompatActivity
     public ImageView toolbarArrowDown;
     public Toolbar toolbar;
     private int timelineId;
+    private int vehicleInfoId;
     private ShimmerFrameLayout mShimmerViewContainer;
 
     // OkHttp
@@ -67,7 +69,11 @@ public class MainMenuActivity extends AppCompatActivity
     CarResponseStructure[] responseArray;
     Gson gson = new Gson();
 
-    OkHttpClient client = new OkHttpClient();
+    OkHttpClient client = new OkHttpClient()
+            .newBuilder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
+            .build();
 
     boolean shouldExecuteOnResume;
 
@@ -141,8 +147,9 @@ public class MainMenuActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         View headerView = navigationView.getHeaderView(0);
 
-        // set timeline id
+        // set fragment id
         timelineId = navigationView.getMenu().getItem(0).getItemId();
+        vehicleInfoId = navigationView.getMenu().getItem(1).getItemId();
 
         // set custom font
         appNameSidebar = headerView.findViewById(R.id.appNameSidebar);
@@ -184,7 +191,13 @@ public class MainMenuActivity extends AppCompatActivity
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Log.e(getApplicationContext().toString(), e.toString());
                 call.cancel();
+                runOnUiThread(() -> {
+                    // stop shimmer
+                    mShimmerViewContainer.stopShimmerAnimation();
+                    mShimmerViewContainer.setVisibility(View.GONE);
+                });
             }
 
             @Override
@@ -266,8 +279,12 @@ public class MainMenuActivity extends AppCompatActivity
 
         NavigationView n = findViewById(R.id.nav_view);
 
-        if (n.getCheckedItem() != null && n.getCheckedItem().getItemId() == timelineId) {
-            fragment = TimelineFragment.newInstance(index);
+        if (n.getCheckedItem() != null) {
+            if (n.getCheckedItem().getItemId() == timelineId) {
+                fragment = TimelineFragment.newInstance(index);
+            } else if (n.getCheckedItem().getItemId() == vehicleInfoId) {
+                fragment = VehicleInfoFragment.newInstance(index);
+            }
         }
 
         SharedPreferences.Editor sp = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE).edit();
@@ -347,12 +364,15 @@ public class MainMenuActivity extends AppCompatActivity
 
         int id = item.getItemId();
         String tag = null;
+        SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
 
         if (id == R.id.nav_timeline) {
-            // TODO get last state from memory
-            SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
             fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
+            tag = "timeline";
+
         } else if (id == R.id.nav_vehicle_information) {
+            fragment = VehicleInfoFragment.newInstance(mSharedPref.getInt("current_index", 0));
+            tag = "vehicle_info";
 
         } else if (id == R.id.nav_report) {
 
