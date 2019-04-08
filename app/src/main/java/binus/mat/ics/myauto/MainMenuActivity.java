@@ -354,58 +354,63 @@ public class MainMenuActivity extends AppCompatActivity
         finish();
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
 
-        //creating fragment object
-        Fragment fragment = null;
+        // if item hasn't been loaded
+        if (responseArray != null) {
+            //creating fragment object
+            Fragment fragment = null;
 
-        int id = item.getItemId();
-        String tag = null;
-        SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+            int id = item.getItemId();
+            String tag = null;
+            SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
 
-        if (id == R.id.nav_timeline) {
-            fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
-            tag = "timeline";
+            if (id == R.id.nav_timeline) {
+                fragment = TimelineFragment.newInstance(mSharedPref.getInt("current_index", 0));
+                tag = "timeline";
 
-        } else if (id == R.id.nav_vehicle_information) {
-            fragment = VehicleInfoFragment.newInstance(mSharedPref.getInt("current_index", 0));
-            tag = "vehicle_info";
+            } else if (id == R.id.nav_vehicle_information) {
+                fragment = VehicleInfoFragment.newInstance(mSharedPref.getInt("current_index", 0));
+                tag = "vehicle_info";
 
-        } else if (id == R.id.nav_report) {
+            } else if (id == R.id.nav_report) {
 
-        } else if (id == R.id.nav_services_nearby) {
+            } else if (id == R.id.nav_services_nearby) {
 
-        } else if (id == R.id.nav_emergency_services) {
+            } else if (id == R.id.nav_emergency_services) {
 
-        } else if (id == R.id.nav_marketplace) {
-            fragment = new MarketplaceFragment();
-            tag = "marketplace";
+            } else if (id == R.id.nav_marketplace) {
+                fragment = new MarketplaceFragment();
+                tag = "marketplace";
 
-        } else if (id == R.id.nav_news) {
-            fragment = new NewsFragment();
-            tag = "news";
+            } else if (id == R.id.nav_news) {
+                fragment = new NewsFragment();
+                tag = "news";
 
-        } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
 
-        } else if (id == R.id.nav_about) {
+            } else if (id == R.id.nav_about) {
 
+            }
+
+            //replacing the fragment
+            if (fragment != null) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                ft.replace(R.id.content_frame, fragment, tag);
+                ft.commit();
+            }
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        } else {
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return false;
         }
-
-        //replacing the fragment
-        if (fragment != null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-            ft.replace(R.id.content_frame, fragment, tag);
-            ft.commit();
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @Override

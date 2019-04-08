@@ -162,103 +162,107 @@ public class TimelineFragment extends Fragment {
         super.onCreate(savedInstanceState);
         MainMenuActivity mainMenuActivity = (MainMenuActivity) getActivity();
         responseArray = mainMenuActivity.responseArray;
-        texts = new ArrayList<>();
 
-        arrayIndex = getArguments().getInt(key, 0);
+        if (responseArray != null) {
+            texts = new ArrayList<>();
 
-        // make JSON to get vehicle data
-        SharedPreferences mSharedPref = getActivity().getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
-        Map<String, String> postParam = new HashMap<>();
-        postParam.put("user_id", mSharedPref.getString("user_id", "null"));
-        postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
-        postParam.put("vehicle_id", String.valueOf(responseArray[arrayIndex].vehicle_id));
+            arrayIndex = getArguments().getInt(key, 0);
 
-        // Convert Map to JSONObject
-        JSONObject jObj = new JSONObject(postParam);
+            // make JSON to get vehicle data
+            SharedPreferences mSharedPref = getActivity().getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+            Map<String, String> postParam = new HashMap<>();
+            postParam.put("user_id", mSharedPref.getString("user_id", "null"));
+            postParam.put("login_hash", mSharedPref.getString("user_hash", "null"));
+            postParam.put("vehicle_id", String.valueOf(responseArray[arrayIndex].vehicle_id));
 
-        // Get vehicle data
-        RequestBody body = RequestBody.create(JSON, jObj.toString());
-        Request request = new Request.Builder()
-                .url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php")
-                .post(body)
-                .build();
+            // Convert Map to JSONObject
+            JSONObject jObj = new JSONObject(postParam);
 
-        client.newCall(request).enqueue(new Callback() {
+            // Get vehicle data
+            RequestBody body = RequestBody.create(JSON, jObj.toString());
+            Request request = new Request.Builder()
+                    .url("http://wendrian.duckdns.org/stanley/myauto/api/vehicleactivities.php")
+                    .post(body)
+                    .build();
 
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(getActivity().toString(), e.toString());
-                call.cancel();
-                getActivity().runOnUiThread(() -> {
-                    // stop shimmer
-                    mRecyclerViewShimmerLayout.stopShimmerAnimation();
-                    mRecyclerViewShimmerLayout.setVisibility(View.GONE);
-                });
-            }
+            client.newCall(request).enqueue(new Callback() {
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                activityResponseArray = gson.fromJson(response.body().string(), ActivityResponseStructure[].class);
-
-                // format price
-                DecimalFormat kursIndonesia = (DecimalFormat) DecimalFormat.getCurrencyInstance();
-                DecimalFormatSymbols formatRp = new DecimalFormatSymbols();
-
-                formatRp.setCurrencySymbol("Rp. ");
-                formatRp.setMonetaryDecimalSeparator(',');
-                formatRp.setGroupingSeparator('.');
-
-                kursIndonesia.setDecimalFormatSymbols(formatRp);
-
-                // format timestamp
-                SimpleDateFormat inputDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                SimpleDateFormat outputDate = new SimpleDateFormat("dd MMM yyyy");
-
-                if (activityResponseArray != null && activityResponseArray[0].result == 1) {
-                    for (int i = activityResponseArray.length - 1; i >= 0; --i) {
-                        //parse date
-                        String date = "1970-01-01 00:00";
-                        try {
-                            date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
-                        } catch (ParseException e) {
-                        }
-
-                        String title = activityResponseArray[i].activity_type_name;
-                        int odometer = activityResponseArray[i].odometer;
-                        String location = activityResponseArray[i].location;
-                        String price = kursIndonesia.format(activityResponseArray[i].price);
-                        texts.add(new DataTimeline(i, title, odometer, location, date, price));
-                    }
-
-                    // show recyclerview
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(getActivity().toString(), e.toString());
+                    call.cancel();
                     getActivity().runOnUiThread(() -> {
+                        // stop shimmer
                         mRecyclerViewShimmerLayout.stopShimmerAnimation();
                         mRecyclerViewShimmerLayout.setVisibility(View.GONE);
-                        mRecyclerView = getView().findViewById(R.id.recycler_view);
-                        mRecyclerView.setVisibility(View.VISIBLE);
-                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        updateUI();
-                    });
-                } else if (activityResponseArray != null && responseArray != null && responseArray[0].result == 2) {
-                    // no vehicle present, set fragment to NoVehicleFragment
-                    NoVehicleFragment noVehicleFragment = new NoVehicleFragment();
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.content_frame, noVehicleFragment, "findThisFragment")
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .commit();
-                } else {
-                    // vehicle is present, but no activity
-                    // show no activity
-                    getActivity().runOnUiThread(() -> {
-                        mRecyclerViewShimmerLayout.stopShimmerAnimation();
-                        mRecyclerViewShimmerLayout.setVisibility(View.GONE);
-                        CardView noActivityText = getView().findViewById(R.id.no_activity_text);
-                        noActivityText.setVisibility(View.VISIBLE);
                     });
                 }
-            }
-        });
 
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    activityResponseArray = gson.fromJson(response.body().string(), ActivityResponseStructure[].class);
+
+                    // format price
+                    DecimalFormat kursIndonesia = (DecimalFormat) DecimalFormat.getCurrencyInstance();
+                    DecimalFormatSymbols formatRp = new DecimalFormatSymbols();
+
+                    formatRp.setCurrencySymbol("Rp. ");
+                    formatRp.setMonetaryDecimalSeparator(',');
+                    formatRp.setGroupingSeparator('.');
+
+                    kursIndonesia.setDecimalFormatSymbols(formatRp);
+
+                    // format timestamp
+                    SimpleDateFormat inputDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    SimpleDateFormat outputDate = new SimpleDateFormat("dd MMM yyyy");
+
+                    if (activityResponseArray != null && activityResponseArray[0].result == 1) {
+                        for (int i = activityResponseArray.length - 1; i >= 0; --i) {
+                            //parse date
+                            String date = "1970-01-01 00:00";
+                            try {
+                                date = outputDate.format(inputDate.parse(activityResponseArray[i].timestamp));
+                            } catch (ParseException e) {
+                            }
+
+                            String title = activityResponseArray[i].activity_type_name;
+                            int odometer = activityResponseArray[i].odometer;
+                            String location = activityResponseArray[i].location;
+                            String price = kursIndonesia.format(activityResponseArray[i].price);
+                            texts.add(new DataTimeline(i, title, odometer, location, date, price));
+                        }
+
+                        // show recyclerview
+                        getActivity().runOnUiThread(() -> {
+                            mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                            mRecyclerViewShimmerLayout.setVisibility(View.GONE);
+                            mRecyclerView = getView().findViewById(R.id.recycler_view);
+                            mRecyclerView.setVisibility(View.VISIBLE);
+                            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                            updateUI();
+                        });
+                    } else if (activityResponseArray != null && responseArray != null && responseArray[0].result == 2) {
+                        // no vehicle present, set fragment to NoVehicleFragment
+                        NoVehicleFragment noVehicleFragment = new NoVehicleFragment();
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.content_frame, noVehicleFragment, "findThisFragment")
+                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                                .commit();
+                    } else {
+                        // vehicle is present, but no activity
+                        // show no activity
+                        getActivity().runOnUiThread(() -> {
+                            mRecyclerViewShimmerLayout.stopShimmerAnimation();
+                            mRecyclerViewShimmerLayout.setVisibility(View.GONE);
+                            CardView noActivityText = getView().findViewById(R.id.no_activity_text);
+                            noActivityText.setVisibility(View.VISIBLE);
+                        });
+                    }
+                }
+            });
+        } else {
+            getActivity().finish();
+        }
     }
 
     public class DataTimeline {
