@@ -3,15 +3,29 @@ package binus.mat.ics.myauto;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.vipulasri.timelineview.TimelineView;
+
 import org.w3c.dom.Text;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -24,6 +38,7 @@ public class VehicleInfoFragment extends Fragment {
     private TextView licensePlateText;
     private TextView licensePlateMonthText;
     private TextView licensePlateYearText;
+    RecyclerView recyclerView;
 
     public VehicleInfoFragment() {
         // Required empty public constructor
@@ -67,18 +82,116 @@ public class VehicleInfoFragment extends Fragment {
         licensePlateText.setTypeface(licensePlateFont);
 
         // set license plate
-        String month = "";
-        String year = "";
+        String month;
+        String year;
         if (mainMenuActivity.responseArray[arrayIndex].stnk_month < 10) {
             month = 0 + String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_month);
         } else {
             month = String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_month);
         }
-        year += String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_year).substring(2,4);
+        year = String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_year).substring(2,4);
 
         licensePlateText.setText(mainMenuActivity.responseArray[arrayIndex].license_plate);
         licensePlateMonthText.setText(month);
         licensePlateYearText.setText(year);
+
+        // Initializing list view with the custom adapter
+        ArrayList <Item> itemList = new ArrayList<>();
+
+        ItemArrayAdapter itemArrayAdapter = new ItemArrayAdapter(R.layout.vehicle_info_item_view, itemList);
+        recyclerView = getView().findViewById(R.id.recycler_view_vehicle_info);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        recyclerView.setAdapter(itemArrayAdapter);
+
+        // format stnk date
+        SimpleDateFormat inputDate = new SimpleDateFormat("MMyy");
+        SimpleDateFormat outputDate = new SimpleDateFormat("MMM yyyy");
+
+
+        String stnk_expiry = month + year;
+
+        //parse date
+        String stnk_exp = "";
+        try {
+            stnk_exp = outputDate.format(inputDate.parse(stnk_expiry));
+        } catch (ParseException e) {
+        }
+
+        // Populating list items
+        itemList.add(new Item(getString(R.string.brand), mainMenuActivity.responseArray[arrayIndex].brand));
+        itemList.add(new Item(getString(R.string.type), mainMenuActivity.responseArray[arrayIndex].type));
+        itemList.add(new Item(getString(R.string.category), mainMenuActivity.responseArray[arrayIndex].category));
+        itemList.add(new Item(getString(R.string.make_year), String.valueOf(mainMenuActivity.responseArray[arrayIndex].make_year)));
+        itemList.add(new Item(getString(R.string.odometer), String.valueOf(mainMenuActivity.responseArray[arrayIndex].odometer) + " km"));
+        itemList.add(new Item(getString(R.string.gas_type), mainMenuActivity.responseArray[arrayIndex].gas_type_name));
+        itemList.add(new Item(getString(R.string.engine_displacement), String.valueOf(mainMenuActivity.responseArray[arrayIndex].engine_displacement) + " cc"));
+        itemList.add(new Item(getString(R.string.license_plate), mainMenuActivity.responseArray[arrayIndex].license_plate));
+        itemList.add(new Item(getString(R.string.stnk_expiry), stnk_exp));
+    }
+
+    public class Item {
+
+        String title;
+        String item;
+
+        public Item(String title, String item) {
+            this.title = title;
+            this.item = item;
+        }
+    }
+
+    public class ItemArrayAdapter extends RecyclerView.Adapter<ItemArrayAdapter.ViewHolder> {
+
+        //All methods in this adapter are required for a bare minimum recyclerview adapter
+        private int listItemLayout;
+        private ArrayList<Item> itemList;
+        // Constructor of the class
+        public ItemArrayAdapter(int layoutId, ArrayList<Item> itemList) {
+            listItemLayout = layoutId;
+            this.itemList = itemList;
+        }
+
+        // get the size of the list
+        @Override
+        public int getItemCount() {
+            return itemList == null ? 0 : itemList.size();
+        }
+
+
+        // specify the row layout file and click for each row
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(listItemLayout, parent, false);
+            ViewHolder myViewHolder = new ViewHolder(view);
+            return myViewHolder;
+        }
+
+        // load data in each row element
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, final int listPosition) {
+            TextView item = holder.item;
+            TextView title = holder.title;
+            title.setText(itemList.get(listPosition).title);
+            item.setText(itemList.get(listPosition).item);
+        }
+
+        // Static inner class to initialize the views of rows
+        class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+            public TextView title;
+            public TextView item;
+            public ViewHolder(View itemView) {
+                super(itemView);
+                itemView.setOnClickListener(this);
+                title = itemView.findViewById(R.id.title);
+                item = itemView.findViewById(R.id.item);
+            }
+            @Override
+            public void onClick(View view) {
+                Log.d("onclick", "onClick " + getLayoutPosition() + " " + item.getText());
+            }
+        }
     }
 
 }

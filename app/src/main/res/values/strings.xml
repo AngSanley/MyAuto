@@ -123,4 +123,13 @@
     <string name="no_vehicle">No vehicle registered. Please add one.</string>
     <string name="empty_garage">Hey! It looks like that your garage is empty. Why don\'t you add one?</string>
     <string name="add_vehicle">Add new vehicle</string>
+    <string name="brand">Brand</string>
+    <string name="type">Type</string>
+    <string name="make_year">Make year</string>
+    <string name="category">Category</string>
+    <string name="odometer">Odometer</string>
+    <string name="stnk_expiry">License expiry</string>
+    <string name="license_plate">License plate</string>
+    <string name="engine_displacement">Engine displacement</string>
+    <string name="gas_type">Gasoline type</string>
 </resources>

@@ -60,6 +60,8 @@ public class MainMenuActivity extends AppCompatActivity
     private int timelineId;
     private int vehicleInfoId;
     private ShimmerFrameLayout mShimmerViewContainer;
+    private ShimmerFrameLayout mShimmerTitleView;
+
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
@@ -88,10 +90,12 @@ public class MainMenuActivity extends AppCompatActivity
         toolbarTitleLayout = findViewById(R.id.toolbarTitleLayout);
         toolbarArrowDown = findViewById(R.id.toolbarArrowDown);
         mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
+        mShimmerTitleView = findViewById(R.id.title_shimmer_layout);
 
         setSupportActionBar(toolbar);
 
         mShimmerViewContainer.startShimmerAnimation();
+        mShimmerTitleView.startShimmerAnimation();
         shouldExecuteOnResume = false;
 
         // declare custom fonts
@@ -195,8 +199,7 @@ public class MainMenuActivity extends AppCompatActivity
                 call.cancel();
                 runOnUiThread(() -> {
                     // stop shimmer
-                    mShimmerViewContainer.stopShimmerAnimation();
-                    mShimmerViewContainer.setVisibility(View.GONE);
+                    stopShimmer();
                 });
             }
 
@@ -211,8 +214,7 @@ public class MainMenuActivity extends AppCompatActivity
                     } else if (responseArray[0].result == 2) {
                         // user has no vehicle registered. handle the problem
                         // stop shimmer
-                        mShimmerViewContainer.stopShimmerAnimation();
-                        mShimmerViewContainer.setVisibility(View.GONE);
+                        stopShimmer();
 
                         //replacing the fragment
                         // select Timeline view
@@ -236,8 +238,7 @@ public class MainMenuActivity extends AppCompatActivity
                         toolbatSubtitle.setVisibility(View.VISIBLE);
 
                         // stop shimmer
-                        mShimmerViewContainer.stopShimmerAnimation();
-                        mShimmerViewContainer.setVisibility(View.GONE);
+                        stopShimmer();
 
                         //replacing the fragment
                         // select Timeline view
@@ -260,6 +261,14 @@ public class MainMenuActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    private void stopShimmer() {
+        mShimmerViewContainer.stopShimmerAnimation();
+        mShimmerTitleView.stopShimmerAnimation();
+
+        mShimmerViewContainer.setVisibility(View.GONE);
+        mShimmerTitleView.setVisibility(View.GONE);
     }
 
     @Override

@@ -14,6 +14,8 @@ public class CarResponseStructure {
     public int stnk_month;
     public int stnk_year;
     public int odometer;
+    public int engine_displacement;
+    public String gas_type_name;
     public String license_plate;
     public String img_url;
     public String errorString;
