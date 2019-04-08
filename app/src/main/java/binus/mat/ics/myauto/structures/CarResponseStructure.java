@@ -1,6 +1,6 @@
 package binus.mat.ics.myauto.structures;
 
-public class CarResponseStructure {
+public class CarResponseStructure implements java.io.Serializable {
     public int result;
     public int user_id;
     public int vehicle_id;

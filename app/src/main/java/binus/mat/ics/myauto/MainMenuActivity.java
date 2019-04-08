@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -119,16 +120,31 @@ public class MainMenuActivity extends AppCompatActivity
                         carType.add(temp.brand + " " + temp.type + " (" + temp.license_plate + ")");
                     }
 
+                    carType.add(getString(R.string.action_manage_vehicle));
+
                     CharSequence[] cs = carType.toArray(new CharSequence[carType.size()]);
 
                     builder.setItems(cs, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type);
-                            toolbatSubtitle.setText(responseArray[which].license_plate);
-                            toolbarArrowDown.setVisibility(View.VISIBLE);
-                            toolbatSubtitle.setVisibility(View.VISIBLE);
-                            refreshFragment(which);
+                            if (which == cs.length-1) {
+                                // make ArrayList
+                                ArrayList<CarResponseStructure> vehicles = new ArrayList<>(Arrays.asList(responseArray));
+                                // make bundle
+                                Bundle extras = new Bundle();
+
+                                extras.putSerializable("vehicle_data", vehicles);
+
+                                Intent intent = new Intent(getApplicationContext(), ManageVehicleActivity.class);
+                                intent.putExtra("bundle", extras);
+                                startActivity(intent);
+                            } else {
+                                MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type);
+                                toolbatSubtitle.setText(responseArray[which].license_plate);
+                                toolbarArrowDown.setVisibility(View.VISIBLE);
+                                toolbatSubtitle.setVisibility(View.VISIBLE);
+                                refreshFragment(which);
+                            }
                         }
                     });
                     AlertDialog dialog = builder.create();
@@ -178,6 +194,12 @@ public class MainMenuActivity extends AppCompatActivity
 
         appNameSidebar.setPadding(0,statusBarHeight+(int)px,0,0);
 
+        requestVehicleData();
+
+    }
+
+    private void requestVehicleData() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
         // make JSON to get vehicle data
         SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
         Map<String, String> postParam = new HashMap<>();
@@ -221,6 +243,11 @@ public class MainMenuActivity extends AppCompatActivity
                         navigationView.getMenu().getItem(0).setChecked(true);
                         Fragment fragment = new NoVehicleFragment();
 
+                       setTitle(getString(R.string.app_name));
+
+                        toolbarArrowDown.setVisibility(View.GONE);
+                        toolbatSubtitle.setVisibility(View.GONE);
+
                         if (fragment != null) {
                             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                             ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -229,8 +256,14 @@ public class MainMenuActivity extends AppCompatActivity
                         }
 
                     } else if (responseArray[0].result == 1){
-
                         SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
+
+                        if (responseArray.length-1 < mSharedPref.getInt("current_index", 0)) {
+                            mSharedPref.edit()
+                                    .remove("current_index")
+                                    .commit();
+                        }
+
                         setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type);
                         toolbatSubtitle.setText(responseArray[mSharedPref.getInt("current_index", 0)].license_plate);
 
@@ -260,7 +293,6 @@ public class MainMenuActivity extends AppCompatActivity
                 });
             }
         });
-
     }
 
     private void stopShimmer() {
@@ -275,9 +307,8 @@ public class MainMenuActivity extends AppCompatActivity
     public void onResume() {
         super.onResume();
         if(shouldExecuteOnResume){
-            // refresh fragment
-            SharedPreferences sp = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
-            refreshFragment(sp.getInt("current_index", 0));
+            // refresh cars
+            requestVehicleData();
         } else {
             shouldExecuteOnResume = true;
         }

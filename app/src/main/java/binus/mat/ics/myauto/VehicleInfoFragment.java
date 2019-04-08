@@ -22,6 +22,7 @@ import com.github.vipulasri.timelineview.TimelineView;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -72,6 +73,20 @@ public class VehicleInfoFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // check if array changed
+        if (mainMenuActivity.responseArray.length-1 < arrayIndex) {
+            arrayIndex = 0;
+        }
+
+        // check if no vehicle
+        if (mainMenuActivity.responseArray[0].result == 2) {
+            NoVehicleFragment noVehicleFragment = new NoVehicleFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, noVehicleFragment, "findThisFragment")
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .commit();
+        }
+
         // assign view
         licensePlateText = getView().findViewById(R.id.licensePlateText);
         licensePlateMonthText = getView().findViewById(R.id.licensePlateMonthText);
@@ -83,13 +98,17 @@ public class VehicleInfoFragment extends Fragment {
 
         // set license plate
         String month;
-        String year;
+        String year = "00";
         if (mainMenuActivity.responseArray[arrayIndex].stnk_month < 10) {
             month = 0 + String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_month);
         } else {
             month = String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_month);
         }
-        year = String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_year).substring(2,4);
+        try {
+            year = String.valueOf(mainMenuActivity.responseArray[arrayIndex].stnk_year).substring(2, 4);
+        } catch (Exception e) {
+
+        }
 
         licensePlateText.setText(mainMenuActivity.responseArray[arrayIndex].license_plate);
         licensePlateMonthText.setText(month);

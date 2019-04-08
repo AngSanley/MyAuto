@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="binus.mat.ics.myauto">
-
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
@@ -16,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".ManageVehicleActivity"
+            android:label="@string/manage_vehicle"
+            android:parentActivityName=".MainMenuActivity"/>
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">
@@ -31,10 +33,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings" />
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/action_register"></activity>
+            android:label="@string/action_register" />
     </application>
 
 </manifest>

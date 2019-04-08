@@ -132,4 +132,10 @@
     <string name="license_plate">License plate</string>
     <string name="engine_displacement">Engine displacement</string>
     <string name="gas_type">Gasoline type</string>
+    <string name="action_manage_vehicle">Manage vehicles...</string>
+    <string name="manage_vehicle">Manage Vehicles</string>
+    <string name="vehicle_remove_confirmation">You are removing %1s (%2s) from your account. This action will remove all the vehicle information, including activities.\n\nAre you sure to delete this vehicle?</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
