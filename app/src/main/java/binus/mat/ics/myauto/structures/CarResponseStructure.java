@@ -13,6 +13,7 @@ public class CarResponseStructure {
     public int make_year;
     public int stnk_year;
     public int odometer;
+    public String license_plate;
     public String img_url;
     public String errorString;
 }

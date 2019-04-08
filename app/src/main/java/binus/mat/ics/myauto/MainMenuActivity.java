@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -22,6 +23,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +52,9 @@ public class MainMenuActivity extends AppCompatActivity
 
     public TextView appNameSidebar;
     public TextView toolbarTitle;
+    public TextView toolbatSubtitle;
+    public LinearLayout toolbarTitleLayout;
+    public ImageView toolbarArrowDown;
     public Toolbar toolbar;
     private int timelineId;
     private ShimmerFrameLayout mShimmerViewContainer;
@@ -70,8 +76,11 @@ public class MainMenuActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        toolbatSubtitle = findViewById(R.id.toolbarSubTitle);
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbar = findViewById(R.id.toolbar);
+        toolbarTitleLayout = findViewById(R.id.toolbarTitleLayout);
+        toolbarArrowDown = findViewById(R.id.toolbarArrowDown);
         mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
 
         setSupportActionBar(toolbar);
@@ -85,7 +94,7 @@ public class MainMenuActivity extends AppCompatActivity
         Typeface serifFontBold = Typeface.createFromAsset(getAssets(),  "fonts/NeuzeitGroBold.ttf");
 
         // custom title (change car)
-        toolbarTitle.setOnClickListener(new View.OnClickListener() {
+        toolbarTitleLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // check if array ready
@@ -97,7 +106,7 @@ public class MainMenuActivity extends AppCompatActivity
 
                     ArrayList<CharSequence> carType = new ArrayList<>();
                     for (CarResponseStructure temp : responseArray) {
-                        carType.add(temp.brand + " " + temp.type);
+                        carType.add(temp.brand + " " + temp.type + " (" + temp.license_plate + ")");
                     }
 
                     CharSequence[] cs = carType.toArray(new CharSequence[carType.size()]);
@@ -105,7 +114,10 @@ public class MainMenuActivity extends AppCompatActivity
                     builder.setItems(cs, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type + " ▾");
+                            MainMenuActivity.this.setTitle(responseArray[which].brand + " " + responseArray[which].type);
+                            toolbatSubtitle.setText(responseArray[which].license_plate);
+                            toolbarArrowDown.setVisibility(View.VISIBLE);
+                            toolbatSubtitle.setVisibility(View.VISIBLE);
                             refreshFragment(which);
                         }
                     });
@@ -114,7 +126,7 @@ public class MainMenuActivity extends AppCompatActivity
                 }
             }
         });
-        toolbarTitle.setText(getSupportActionBar().getTitle() + " ▾");
+        toolbarTitle.setText(getSupportActionBar().getTitle());
 
         // disable default title, use custom title instead
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -204,7 +216,11 @@ public class MainMenuActivity extends AppCompatActivity
                     } else if (responseArray[0].result == 1){
 
                         SharedPreferences mSharedPref = getSharedPreferences("MainMenuActivity", Context.MODE_PRIVATE);
-                        setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type + " ▾");
+                        setTitle(responseArray[mSharedPref.getInt("current_index", 0)].brand + " " + responseArray[mSharedPref.getInt("current_index", 0)].type);
+                        toolbatSubtitle.setText(responseArray[mSharedPref.getInt("current_index", 0)].license_plate);
+
+                        toolbarArrowDown.setVisibility(View.VISIBLE);
+                        toolbatSubtitle.setVisibility(View.VISIBLE);
 
                         // stop shimmer
                         mShimmerViewContainer.stopShimmerAnimation();
