@@ -120,6 +120,7 @@ public class ManageVehicleActivity extends AppCompatActivity {
     private void addVehicle() {
         String GetVehicleBrandFromCategoryUrl = "http://wendrian.duckdns.org/stanley/myauto/api/getVehicleBrandFromCategory.php";
         String GetVehicleTypeFromBrandUrl = "http://wendrian.duckdns.org/stanley/myauto/api/getVehicleType.php";
+        String AddVehicleUrl = "http://wendrian.duckdns.org/stanley/myauto/api/addVehicle.php";
 
         Context context = ManageVehicleActivity.this;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -134,6 +135,29 @@ public class ManageVehicleActivity extends AppCompatActivity {
         EditText licenseExpiryInput = dialogLayout.findViewById(R.id.stnkExpiryInput);
         EditText mVehicleLicensePlate = dialogLayout.findViewById(R.id.vehicleLicensePlateInput);
         EditText mLicenseExpiryEdit = dialogLayout.findViewById(R.id.stnkExpiryInput);
+        EditText mOdometerEdit = dialogLayout.findViewById(R.id.vehicleOdometerInput);
+
+        mVehicleLicensePlate.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String s=editable.toString();
+                if(!s.equals(s.toUpperCase())) {
+                    s = s.toUpperCase();
+                    mVehicleLicensePlate.setText(s);
+                    mVehicleLicensePlate.setSelection(mVehicleLicensePlate.getText().length());
+                }
+            }
+        });
 
         // add first request
         Map<String, String> postParam = new HashMap<>();
@@ -204,20 +228,79 @@ public class ManageVehicleActivity extends AppCompatActivity {
             }
         });
 
-        DialogInterface.OnClickListener addVehicleDialogListener = (dialog, which) -> {
-            switch (which) {
-                case DialogInterface.BUTTON_POSITIVE:
-                    Toast.makeText(context, mVehicleLicensePlate.getText().toString(), Toast.LENGTH_LONG).show();
-                    break;
-            }
-        };
+        DialogInterface.OnClickListener addVehicleDialogListener = (dialog, which) -> { };
         builder.setTitle(getString(R.string.add_vehicle));
         builder.setPositiveButton(getString(R.string.action_add), addVehicleDialogListener);
         builder.setNegativeButton(getString(R.string.action_cancel),addVehicleDialogListener);
         builder.setView(dialogLayout);
-        builder.show();
-        //vecstruct = vehicleCategories.get(0);
-        //Toast.makeText(context, vecstruct.name, Toast.LENGTH_LONG).show();
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            boolean isInputValid = true;
+            // verify user inputs
+            if (makeYearInput.getText().length() == 0) {
+                makeYearInput.requestFocus();
+                makeYearInput.setError(getString(R.string.error_field_required));
+                isInputValid = false;
+            }
+
+            if (mOdometerEdit.getText().length() == 0) {
+                mOdometerEdit.requestFocus();
+                mOdometerEdit.setError(getString(R.string.error_field_required));
+                isInputValid = false;
+            }
+
+            if (mVehicleLicensePlate.getText().length() == 0) {
+                mVehicleLicensePlate.requestFocus();
+                mVehicleLicensePlate.setError(getString(R.string.error_field_required));
+                isInputValid = false;
+            }
+
+            if (licenseExpiryInput.getText().length() == 0) {
+                licenseExpiryInput.requestFocus();
+                licenseExpiryInput.setError(getString(R.string.error_field_required));
+                isInputValid = false;
+            }
+
+            if (isInputValid) {
+                SharedPreferences mSharedPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+                String stnk_expiry[] = licenseExpiryInput.getText().toString().split("-");
+                // make json
+                Map<String, String> AddVehiclePostParam = new HashMap<>();
+                AddVehiclePostParam.put("owner", mSharedPref.getString("user_id", null));
+                AddVehiclePostParam.put("category", String.valueOf(vehicleCatSpinner.getSelectedItemPosition() + 1));
+                AddVehiclePostParam.put("vehicle_name", String.valueOf(vehicleTypeSpinner.getSelectedItem().toString()));
+                AddVehiclePostParam.put("brand_name", String.valueOf(vehicleBrandSpinner.getSelectedItem().toString()));
+                AddVehiclePostParam.put("make_year", makeYearInput.getText().toString());
+                AddVehiclePostParam.put("odometer", mOdometerEdit.getText().toString());
+                AddVehiclePostParam.put("license_plate", mVehicleLicensePlate.getText().toString());
+                AddVehiclePostParam.put("stnk_month", stnk_expiry[0]);
+                AddVehiclePostParam.put("stnk_year", stnk_expiry[1]);
+
+                JSONObject addObj = new JSONObject(AddVehiclePostParam);
+                RequestBody addBody = RequestBody.create(JSON, addObj.toString());
+                Log.d("nihaoma", addObj.toString());
+
+                // post to serper
+                Request request = new Request.Builder().url(AddVehicleUrl).post(addBody).build();
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e(getApplicationContext().toString(), e.toString());
+                        call.cancel();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        runOnUiThread(() -> {
+                            dialog.dismiss();
+                        });
+                    }
+                });
+            }
+        });
     }
 
     public class Item {

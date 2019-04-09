@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.v4.app.Fragment;
@@ -425,11 +426,24 @@ public class MainMenuActivity extends AppCompatActivity
                 fragment = VehicleInfoFragment.newInstance(mSharedPref.getInt("current_index", 0));
                 tag = "vehicle_info";
 
-            } else if (id == R.id.nav_report) {
+            //} else if (id == R.id.nav_report) {
 
             } else if (id == R.id.nav_services_nearby) {
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q=nearby+petrol+station");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
 
             } else if (id == R.id.nav_emergency_services) {
+                String brand = "nearby vehicle services";
+                if (responseArray != null && responseArray[0].result == 1.0) {
+                    brand = responseArray[mSharedPref.getInt("current_index", 0)].brand + " " +  responseArray[mSharedPref.getInt("current_index", 0)].category + " service";
+                }
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + brand);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+
 
             } else if (id == R.id.nav_marketplace) {
                 fragment = new MarketplaceFragment();

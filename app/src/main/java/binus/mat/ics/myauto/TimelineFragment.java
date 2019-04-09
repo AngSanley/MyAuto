@@ -1,8 +1,10 @@
 package binus.mat.ics.myauto;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,7 +23,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +34,7 @@ import com.github.vipulasri.timelineview.TimelineView;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.Console;
 import java.io.IOException;
@@ -297,8 +303,73 @@ public class TimelineFragment extends Fragment {
         mRecyclerViewShimmerLayout.startShimmerAnimation();
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
-        fab.setOnClickListener(view1 -> Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        fab.setOnClickListener(view1 -> {
+//            Snackbar.make(view1, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show();
+
+            String AddActivityUrl = "http://wendrian.duckdns.org/stanley/myauto/api/addActivity.php";
+            // placeholder string
+            String[] type = {"Refuel", "Oil Change", "Service"};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            View dialogLayout = inflater.inflate(R.layout.add_activity_dialog, null);
+            Spinner activityTypes = dialogLayout.findViewById(R.id.activityTypeSpinner);
+            TextInputEditText locationInput = dialogLayout.findViewById(R.id.locationInput);
+            TextInputEditText odometerInput = dialogLayout.findViewById(R.id.odometerInput);
+            TextInputEditText priceInput = dialogLayout.findViewById(R.id.priceInput);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, type);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            activityTypes.setAdapter(adapter);
+
+            DialogInterface.OnClickListener addVehicleDialogListener = (dialog, which) -> { };
+            builder.setTitle("Add vehicle activity");
+            builder.setPositiveButton(getString(R.string.action_add), addVehicleDialogListener);
+            builder.setNegativeButton(getString(R.string.action_cancel),addVehicleDialogListener);
+            builder.setView(dialogLayout);
+
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                // make json
+                Map<String, String> AddVehiclePostParam = new HashMap<>();
+                AddVehiclePostParam.put("type", String.valueOf(activityTypes.getSelectedItemPosition()+1));
+                AddVehiclePostParam.put("vehicle_id", String.valueOf(responseArray[arrayIndex].vehicle_id));
+                AddVehiclePostParam.put("location", locationInput.getText().toString());
+                AddVehiclePostParam.put("price", priceInput.getText().toString());
+                AddVehiclePostParam.put("odometer", odometerInput.getText().toString());
+                AddVehiclePostParam.put("fuel_tank", "100");
+
+                JSONObject addObj = new JSONObject(AddVehiclePostParam);
+                RequestBody addBody = RequestBody.create(JSON, addObj.toString());
+                Log.d("nihaoma", addObj.toString());
+
+                // post to serper
+                Request request = new Request.Builder().url(AddActivityUrl).post(addBody).build();
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e(getContext().toString(), e.toString());
+                        call.cancel();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        dialog.dismiss();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                MainMenuActivity ya = (MainMenuActivity) getActivity();
+                                ya.onResume();
+                                Snackbar.make(view1, "Add activity success", Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
 
         MainMenuActivity mainmenu = (MainMenuActivity) getActivity();
 

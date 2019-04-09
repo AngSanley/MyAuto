@@ -14,10 +14,10 @@
             android:id="@+id/nav_vehicle_information"
             android:icon="@drawable/ic_car"
             android:title="@string/vehicle_information" />
-        <item
+        <!--<item
             android:id="@+id/nav_report"
             android:icon="@drawable/ic_assignment_black_24dp"
-            android:title="@string/report" />
+            android:title="@string/report" />-->
         <item
         android:id="@+id/nav_services_nearby"
         android:icon="@drawable/ic_gas_station"
