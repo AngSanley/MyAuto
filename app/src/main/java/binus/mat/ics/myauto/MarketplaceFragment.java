@@ -51,7 +51,7 @@ public class MarketplaceFragment extends Fragment {
                 super.onPageFinished(view, url);
             }
         });
-        myWebView.loadUrl("http://www.google.com");
+        myWebView.loadUrl("http://wendrian.duckdns.org/stanley/myauto/marketplace");
 
         mySwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
