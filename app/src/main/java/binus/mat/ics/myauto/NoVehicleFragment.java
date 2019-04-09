@@ -1,5 +1,6 @@
 package binus.mat.ics.myauto;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,13 +38,10 @@ public class NoVehicleFragment extends Fragment {
         mEmptyGarage = getView().findViewById(R.id.noVehicleText);
         mAddVehicle = getView().findViewById(R.id.addVehicleButton);
 
-        mEmptyGarage.setText(getString(R.string.empty_garage, "User"));
+        mEmptyGarage.setText(getString(R.string.empty_garage));
 
-        mAddVehicle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
+        mAddVehicle.setOnClickListener(v -> {
+            startActivity(new Intent(getActivity(), AddNewVehicleActivity.class));
         });
     }
 }

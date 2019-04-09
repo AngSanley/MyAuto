@@ -3,6 +3,7 @@ package binus.mat.ics.myauto;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -43,6 +44,7 @@ public class ManageVehicleActivity extends AppCompatActivity {
     ArrayList<CarResponseStructure> vehicleData = new ArrayList<>();
     ArrayList <ManageVehicleActivity.Item> itemList = new ArrayList<>();
     ManageVehicleActivity.ItemArrayAdapter itemArrayAdapter;
+    Button addNewVehicleButton;
 
     // OkHttp
     public static final MediaType JSON = MediaType.get("application/json");
@@ -75,6 +77,12 @@ public class ManageVehicleActivity extends AppCompatActivity {
         for (CarResponseStructure vehicles: vehicleData) {
             itemList.add(new ManageVehicleActivity.Item(vehicles.brand + " " + vehicles.type, vehicles.license_plate));
         }
+
+        addNewVehicleButton = findViewById(R.id.add_vehicle_button);
+
+        addNewVehicleButton.setOnClickListener(v -> {
+            startActivity(new Intent(ManageVehicleActivity.this, AddNewVehicleActivity.class));
+        });
     }
 
     public class Item {
