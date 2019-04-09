@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/vehicleCategoryIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_car"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/vehicleCategorySpinner"
+        android:paddingRight="10dp"/>
+
+    <Spinner
+        android:id="@+id/vehicleCategorySpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/vehicleCategoryIcon"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"></Spinner>
+
+    <Spinner
+        android:id="@+id/vehicleBrandSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleCategorySpinner"
+        app:layout_constraintLeft_toLeftOf="@id/vehicleCategorySpinner"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"></Spinner>
+
+    <Spinner
+        android:id="@+id/vehicleTypeSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleBrandSpinner"
+        app:layout_constraintLeft_toLeftOf="@id/vehicleCategorySpinner"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"></Spinner>
+
+    <ImageView
+        android:id="@+id/vehicleYearIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_factory"
+        app:layout_constraintTop_toTopOf="@id/vehicleYearInput"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/vehicleYearInput"
+        android:paddingRight="10dp"/>
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/vehicleYearInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleTypeSpinner"
+        app:layout_constraintLeft_toRightOf="@id/vehicleYearIcon"
+        app:layout_constraintRight_toRightOf="parent"
+        android:inputType="number"
+        android:maxLength="4"
+        android:hint="@string/make_year"/>
+
+    <ImageView
+        android:id="@+id/vehicleOdometerIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_number_display"
+        app:layout_constraintTop_toTopOf="@id/vehicleOdometerInput"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/vehicleOdometerInput"
+        android:paddingRight="10dp"/>
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/vehicleOdometerInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleYearInput"
+        app:layout_constraintLeft_toRightOf="@id/vehicleYearIcon"
+        app:layout_constraintRight_toLeftOf="@id/kmText"
+        android:inputType="number"
+        android:hint="@string/odometer"/>
+
+    <TextView
+        android:id="@+id/kmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/vehicleOdometerInput"
+        app:layout_constraintBottom_toBottomOf="@id/vehicleOdometerInput"
+        app:layout_constraintLeft_toRightOf="@id/vehicleOdometerInput"
+        app:layout_constraintRight_toRightOf="@id/vehicleYearInput"
+        android:paddingLeft="10dp"
+        android:text="@string/km" />
+
+    <ImageView
+        android:id="@+id/vehicleLicensePlateIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_license_plate"
+        app:layout_constraintTop_toTopOf="@id/vehicleLicensePlateInput"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/vehicleLicensePlateInput"
+        android:paddingRight="10dp"/>
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/vehicleLicensePlateInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleOdometerInput"
+        app:layout_constraintLeft_toRightOf="@id/vehicleLicensePlateIcon"
+        app:layout_constraintRight_toRightOf="parent"
+        android:hint="@string/license_plate"/>
+
+    <ImageView
+        android:id="@+id/stnkExpiryIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_date_range_black_24dp"
+        app:layout_constraintTop_toTopOf="@id/stnkExpiryInput"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/stnkExpiryInput"
+        android:paddingRight="10dp"/>
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/stnkExpiryInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vehicleLicensePlateInput"
+        app:layout_constraintLeft_toRightOf="@id/stnkExpiryIcon"
+        app:layout_constraintRight_toRightOf="parent"
+        android:clickable="true"
+        android:editable="false"
+        android:hint="@string/stnk_expiry"/>
+
+</android.support.constraint.ConstraintLayout>

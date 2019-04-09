@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import binus.mat.ics.myauto.structures.CarResponseStructure;
+import binus.mat.ics.myauto.structures.ConnectionErrorFragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -222,6 +223,15 @@ public class MainMenuActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     // stop shimmer
                     stopShimmer();
+
+                    Fragment fragment = new ConnectionErrorFragment();
+
+                    if (fragment != null) {
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                        ft.replace(R.id.content_frame, fragment);
+                        ft.commit();
+                    }
                 });
             }
 

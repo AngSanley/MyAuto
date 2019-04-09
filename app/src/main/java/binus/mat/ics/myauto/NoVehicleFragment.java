@@ -41,7 +41,9 @@ public class NoVehicleFragment extends Fragment {
         mEmptyGarage.setText(getString(R.string.empty_garage));
 
         mAddVehicle.setOnClickListener(v -> {
-            startActivity(new Intent(getActivity(), AddNewVehicleActivity.class));
+            Intent intent = new Intent(getActivity(), ManageVehicleActivity.class);
+            intent.putExtra("launchAddVehicleDialog", true);
+            startActivity(intent);
         });
     }
 }
